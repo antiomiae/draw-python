@@ -24,7 +24,7 @@ class PaletteWidget(QtWidgets.QWidget):
         self.layout().addWidget(self.item_container)
 
         self.setSizePolicy(QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Minimum)
-        self.item_container.setSizePolicy(QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Minimum)
+        self.item_container.setSizePolicy(QtWidgets.QSizePolicy.Fixed, QtWidgets.QSizePolicy.Fixed)
 
     def set_palette(self, palette):
         self.palette = palette
@@ -41,13 +41,6 @@ class PaletteWidget(QtWidgets.QWidget):
             palette_item = PaletteItem(QtGui.QColor(0, 0, 0, 50), self._item_size)
             layout.addWidget(palette_item, i / self._height, i % self._width)
 
-        for col in range(self._width):
-            layout.setColumnMinimumWidth(col, self._item_size.width())
-            layout.setColumnStretch(col, 0)
-
-        for row in range(self._height):
-            layout.setRowMinimumHeight(row, self._item_size.height())
-            layout.setRowStretch(row, 0)
 
 
 class PaletteItem(QtWidgets.QWidget):
