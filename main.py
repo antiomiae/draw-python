@@ -12,12 +12,11 @@ class MainWindow(QMainWindow):
 
 if __name__ == "__main__":
     QApplication.setAttribute(Qt.AA_EnableHighDpiScaling)
+    QApplication.setAttribute(Qt.AA_SynthesizeMouseForUnhandledTouchEvents, False)
+    QApplication.setAttribute(Qt.AA_SynthesizeTouchForUnhandledMouseEvents, False)
     app = QApplication([])
-    window = MainWindow()
-    window.show()
 
     l = LayerView()
-    window.setCentralWidget(l)
-    #l.show()
+    l.show()
 
     sys.exit(app.exec_())
