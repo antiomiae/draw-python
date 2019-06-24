@@ -123,11 +123,11 @@ class LayerView(QtWidgets.QMainWindow):
         self._zoom_level = max(min(zoom, self.MAX_ZOOM_LEVEL), self.MIN_ZOOM_LEVEL)
 
     def handle_zoom_in(self, checked):
-        self.zoom_level += 0.25
+        self.zoom_level += 0.5
         self.update_image_scale()
 
     def handle_zoom_out(self, checked):
-        self.zoom_level -= 0.25
+        self.zoom_level -= 0.5
         self.update_image_scale()
 
     def handle_toggle_grid(self, checked):
@@ -200,7 +200,8 @@ class LineTool:
     def on_click(self, event):
         canvas_transform: QtGui.QTransform = self.parent.canvas_scale_matrix().inverted()[0]
 
-        point_in_image = canvas_transform.map(self.parent.image_label.mapFrom(self.parent, event.pos()))
+        point_in_image = canvas_transform.map(self.parent.image_label.mapFromGlobal(event.globalPos()))
+        print(point_in_image)
 
         if not self.start:
             self.start = point_in_image
