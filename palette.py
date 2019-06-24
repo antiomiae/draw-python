@@ -16,8 +16,10 @@ class PaletteWidget(QtWidgets.QWidget):
 
         self.item_container = QtWidgets.QWidget()
         item_grid = QtWidgets.QGridLayout()
-        item_grid.setSpacing(1)
         self.item_container.setLayout(item_grid)
+
+        item_grid.setSpacing(1)
+        item_grid.setContentsMargins(0, 0, 0, 0)
 
         self.layout().addWidget(self.item_container)
 
@@ -39,7 +41,13 @@ class PaletteWidget(QtWidgets.QWidget):
             palette_item = PaletteItem(QtGui.QColor(0, 0, 0, 50), self._item_size)
             layout.addWidget(palette_item, i / self._height, i % self._width)
 
+        for col in range(self._width):
+            layout.setColumnMinimumWidth(col, self._item_size.width())
+            layout.setColumnStretch(col, 0)
 
+        for row in range(self._height):
+            layout.setRowMinimumHeight(row, self._item_size.height())
+            layout.setRowStretch(row, 0)
 
 
 class PaletteItem(QtWidgets.QWidget):
