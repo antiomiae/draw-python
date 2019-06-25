@@ -10,11 +10,32 @@ from dataclasses import dataclass
 import math
 
 import palette
+import overlay
 
 
 class ImageLabel(QtWidgets.QLabel):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+
+        self.setup_overlay()
+
+    def resizeEvent(self, event):
+        self.setup_overlay()
+
+    def setup_overlay(self):
+        size = None
+        if self.pixmap():
+            size = QtCore.QSize(self.pixmap().width(), self.pixmap().height())
+        else:
+            size = QtCore.QSize(self.size().width(), self.size().height())
+
+        self.setup_overlay_image(size)
+
+
+    def setup_overlay_image(self, size):
+        self.overlay_image = QImage(size, QImage.Format_ARGB32_Premultiplied)
+        self.overlay_image.setDevicePixelRatio(self.devicePixelRatioF())
+        self.overlay_image.fill(QtGui.QColor(255, 0, 0, 128))
 
     def paintEvent(self, event):
         if self.pixmap():
@@ -22,6 +43,8 @@ class ImageLabel(QtWidgets.QLabel):
             self.drawFrame(painter)
             cr = self.contentsRect()
             painter.drawPixmap(cr, self.pixmap())
+
+            painter.drawImage(cr, self.overlay_image)
 
             if self.window().show_grid:
                 Grid.draw(self, self.window().grid_spacing)
@@ -38,10 +61,10 @@ class Grid:
         scale = target.window().effective_canvas_scale()
 
         lines = []
-        for x in range(0, canvas_size.width(), spacing):
+        for x in range(spacing, canvas_size.width(), spacing):
             lines.append(QtCore.QLineF(x*scale, 0, x*scale, canvas_size.height()*scale))
 
-        for y in range(0, canvas_size.height(), spacing):
+        for y in range(spacing, canvas_size.height(), spacing):
             lines.append(QtCore.QLineF(0, y*scale, canvas_size.width()*scale, y*scale))
 
         pen = QtGui.QPen()
@@ -50,21 +73,18 @@ class Grid:
         painter.setPen(pen)
         painter.drawLines(lines)
 
-        for y in range(canvas_size.height()):
-            pass
-
 
 class LayerView(QtWidgets.QMainWindow):
     MAX_ZOOM_LEVEL = 5
     MIN_ZOOM_LEVEL = -3
 
     def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
+        super().__init__(*args)
         self._zoom_level = 0
         self.grid_spacing = 8
         self.show_grid = False
 
-        self.canvas_size = QtCore.QSize(256, 256)
+        self.canvas_size = kwargs.get('size') or QtCore.QSize(256, 256)
         self.layer = Layer(self.canvas_size)
         self.tool = None
 
@@ -85,6 +105,13 @@ class LayerView(QtWidgets.QMainWindow):
         self.setup_gestures()
         self.setup_actions()
         self.setup_docks()
+
+        self.overlay = overlay.OverlayWidget(self.image_label)
+        self.overlay.resize(self.image_label.size())
+        self.overlay.show()
+
+        p = QPainter(self.overlay)
+        p.fillRect(self.overlay.rect(), QtCore.Qt.GlobalColor.black)
 
     def setup_gestures(self):
         self.grabGesture(QtCore.Qt.PinchGesture)
@@ -111,6 +138,7 @@ class LayerView(QtWidgets.QMainWindow):
         self.palette_control = palette.PaletteWidget()
         self.palette_control.set_palette([QtCore.Qt.GlobalColor.white, QtCore.Qt.GlobalColor.black])
         dock.setWidget(self.palette_control)
+        dock.setSizePolicy(QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Minimum)
 
         self.addDockWidget(QtCore.Qt.RightDockWidgetArea, dock)
 
@@ -147,7 +175,6 @@ class LayerView(QtWidgets.QMainWindow):
 
     def update_image_scale(self):
         new_size = self.canvas_size*self.effective_canvas_scale()
-        print(new_size)
         self.image_label.setFixedSize(new_size)
 
     def handle_gesture(self, event):
@@ -161,7 +188,6 @@ class LayerView(QtWidgets.QMainWindow):
         self.draw_layer()
 
     def event(self, event: QtCore.QEvent):
-        # print(event)
         if event.type() == QtCore.QEvent.Gesture:
             return self.handle_gesture(event)
         else:
@@ -182,13 +208,7 @@ class Layer:
         self.canvas_size = size
         self.image = QImage(self.canvas_size, QImage.Format_ARGB32)
         self.image.size = self.canvas_size
-        self.draw_image()
-
-    def draw_image(self):
         self.image.fill(QtCore.Qt.transparent)
-        p = QPainter(self.image)
-        p.drawLine(QtCore.QLine(0, 0, 128, 128))
-        p.end()
 
 
 class LineTool:
@@ -200,8 +220,11 @@ class LineTool:
     def on_click(self, event):
         canvas_transform: QtGui.QTransform = self.parent.canvas_scale_matrix().inverted()[0]
 
-        point_in_image = canvas_transform.map(self.parent.image_label.mapFromGlobal(event.globalPos()))
+        point_in_image = canvas_transform.map(QtCore.QPointF(self.parent.image_label.mapFromGlobal(event.globalPos())))
         print(point_in_image)
+
+        point_in_image.setX(math.floor(point_in_image.x()))
+        point_in_image.setY(math.floor(point_in_image.y()))
 
         if not self.start:
             self.start = point_in_image

@@ -2,6 +2,7 @@
 import sys
 from PySide2.QtWidgets import QApplication, QMainWindow
 from PySide2.QtCore import Qt
+from PySide2 import QtCore
 
 from layer_view import LayerView
 
@@ -16,7 +17,7 @@ if __name__ == "__main__":
     QApplication.setAttribute(Qt.AA_SynthesizeTouchForUnhandledMouseEvents, False)
     app = QApplication([])
 
-    l = LayerView()
+    l = LayerView(size=QtCore.QSize(64, 64))
     l.show()
 
     sys.exit(app.exec_())
