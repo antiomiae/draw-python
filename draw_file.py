@@ -24,7 +24,6 @@ class DrawFile:
 
         self.layers = [self._layer_data[str(i)] for i in range(self.layer_count)]
 
-
     def ensure_file(self):
         if not self.file:
             self.file = ZipFile(self.file_path)
