@@ -19,7 +19,15 @@ if __name__ == "__main__":
 
     app = QApplication([])
 
-    app.setStyle(QStyleFactory.create('windows'))
+
+    style_name = 'fusion'
+
+    if app.platformName() == 'windows':
+        style_name = 'windows'
+    elif app.platformName() == 'cocoa':
+        style_name = 'macos'
+
+    app.setStyle(QStyleFactory.create(style_name))
 
     QApplication.setOrganizationName('Kevin Ward')
     QApplication.setApplicationName('draw')

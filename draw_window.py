@@ -14,6 +14,9 @@ class DrawWindow(QtWidgets.QMdiSubWindow):
 
     def __init__(self, document = None):
         super().__init__()
+
+        self.setAttribute(QtCore.Qt.WA_DeleteOnClose)
+
         self.document = document or DrawDocument()
         self.setWindowFilePath(self.document.file_path)
         self.setWindowTitle(self.document.name)
@@ -111,7 +114,7 @@ class DrawWindow(QtWidgets.QMdiSubWindow):
         action.setChecked(self.show_grid)
 
         grid_size_input = QtWidgets.QSpinBox
-        grid_size_input.
+        #grid_size_input.
 
 
 

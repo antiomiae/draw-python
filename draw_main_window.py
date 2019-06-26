@@ -20,6 +20,26 @@ class DrawMainWindow(QtWidgets.QMainWindow):
         self.setup_actions()
         self.setup_menus()
 
+        QtWidgets.QApplication.instance().aboutToQuit.connect(self.on_about_to_quit)
+
+        self.reload_windows()
+
+    def reload_windows(self):
+        settings = QtCore.QSettings()
+        file_paths = settings.value('editor/open_windows', [])
+
+        for path in file_paths:
+            document = DrawDocument(path)
+            window = DrawWindow(document)
+            self.mdi_area.addSubWindow(window)
+            window.show()
+
+
+    def on_about_to_quit(self):
+        settings = QtCore.QSettings()
+        open_windows = [window.document.file_path for window in self.mdi_area.subWindowList() if window.document.file_path]
+        settings.setValue('editor/open_windows', open_windows)
+
     def setup_actions(self):
         open_file = QtWidgets.QAction('Open')
         open_file.setShortcut(QtGui.QKeySequence.Open)
@@ -93,7 +113,7 @@ class DrawMainWindow(QtWidgets.QMainWindow):
 
     def handle_hide_all_windows(self, checked):
         for window in self.open_draw_windows:
-            window.hide()
+            window.shade()
 
     def handle_view_zoom_in(self, checked):
         w = self.mdi_area.currentSubWindow()
