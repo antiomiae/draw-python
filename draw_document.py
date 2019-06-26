@@ -11,10 +11,14 @@ class DrawLayer():
     updated = QtCore.Signal((QtCore.QObject,))
 
     def __init__(self, size=QtCore.QSize(128, 128)):
+        self.name = ''
         self.size = size
         self.image = QtGui.QImage(self.size, QtGui.QImage.Format_ARGB32)
         self.image.size = self.size
         self.image.fill(QtCore.Qt.transparent)
+        self.hidden = False
+        self.blend_mode = 'normal'
+        self.alpha = 255
 
 
 class DrawDocument(QtCore.QObject):
@@ -26,18 +30,29 @@ class DrawDocument(QtCore.QObject):
         self.file_path = file_path
         self.size = size
         self.layers = []
+        self.name = None
 
         if file_path:
             self.load_file(self.file_path)
 
     def load_file(self, file_path):
         draw_file = DrawFile.from_path(file_path)
+        self.name = draw_file.name
+
         canvas_size = QtCore.QSize(draw_file.width, draw_file.height)
+        self.size = canvas_size
+
+        self.layers.clear()
 
         for i in range(draw_file.layer_count):
             info = draw_file.get_layer_data(i)
+            print(info)
             with draw_file.get_layer_image_stream(i) as stream:
                 buffer = QtCore.QByteArray(stream.read())
                 layer = DrawLayer(canvas_size)
                 layer.image.loadFromData(buffer)
+                layer.hidden = info['hidden']
+                layer.blend_mode = info['blendMode']
+                layer.alpha = info['alpha']
+                layer.name = info['name']
                 self.layers.append(layer)

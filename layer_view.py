@@ -10,8 +10,6 @@ from dataclasses import dataclass
 import math
 
 import palette
-import overlay
-
 
 class ImageLabel(QtWidgets.QLabel):
     def __init__(self, *args, **kwargs):
@@ -30,7 +28,6 @@ class ImageLabel(QtWidgets.QLabel):
             size = QtCore.QSize(self.size().width(), self.size().height())
 
         self.setup_overlay_image(size)
-
 
     def setup_overlay_image(self, size):
         self.overlay_image = QImage(size, QImage.Format_ARGB32_Premultiplied)

@@ -4,6 +4,7 @@ import json
 class DrawFile:
     def __init__(self, file_path):
         self.file_path = file_path
+        self.name = None
         self._doc_data = None
         self.file = None
 
@@ -19,6 +20,7 @@ class DrawFile:
         canvas_data = doc_data['canvas']
         self.width = canvas_data['width']
         self.height = canvas_data['height']
+        self.name = doc_data['name']
         self._layer_data = canvas_data['layers']
         self.layer_count = len(self._layer_data)
 
