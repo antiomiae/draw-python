@@ -30,6 +30,8 @@ class DrawWindow(QtWidgets.QMdiSubWindow):
 
         self.window = QtWidgets.QMainWindow()
 
+        self.window.setFrameStyle(QtWidgets.QFrame.NO_FRAME)
+
         self.setWidget(self.window)
 
         self.scroll_area = QtWidgets.QScrollArea()
@@ -103,27 +105,17 @@ class DrawWindow(QtWidgets.QMdiSubWindow):
         self.canvas.update()
 
     def setup_menus(self):
-        # toolbar_area = QtWidgets.QFrame()
-        # self.widget().layout().insertWidget(0, toolbar_area)
+        pass
+        # toolbar = self.widget().addToolBar('bar')
         #
-        # toolbar_area.show()
-        # toolbar_area.setLayout(QtWidgets.QHBoxLayout())
-        # toolbar_area.setBackgroundRole(QtGui.QPalette.Light)
-
-        # toolbar = QtWidgets.QToolBar()
-        toolbar = self.widget().addToolBar('bar')
-        # toolbar_area.layout().addWidget(toolbar)
-
-        toolbar.addAction('grid size')
-
-        action = toolbar.addAction('Show grid')
-        action.toggled.connect(self.toggle_grid)
-        action.setCheckable(True)
-        action.setChecked(self.show_grid)
-
-        grid_size_input = QtWidgets.QSpinBox
-        #grid_size_input.
-
+        # toolbar.addAction('grid size')
+        #
+        # action = toolbar.addAction('Show grid')
+        # action.toggled.connect(self.toggle_grid)
+        # action.setCheckable(True)
+        # action.setChecked(self.show_grid)
+        #
+        # grid_size_input = QtWidgets.QSpinBox()
 
 
 class CanvasLabel(QtWidgets.QLabel):
