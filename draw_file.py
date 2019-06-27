@@ -26,6 +26,9 @@ class DrawFile:
 
         self.layers = [self._layer_data[str(i)] for i in range(self.layer_count)]
 
+        palette_data = doc_data['palette']
+        self.palette = [palette_data['colors'][str(i)] for i in range(len(palette_data['colors']))]
+
     def ensure_file(self):
         if not self.file:
             self.file = ZipFile(self.file_path)

@@ -8,6 +8,7 @@ from PySide2.QtGui import QImage
 
 from draw_document import DrawDocument
 
+
 class DrawWindow(QtWidgets.QMdiSubWindow):
     MAX_ZOOM_LEVEL = 5
     MIN_ZOOM_LEVEL = -3
@@ -18,6 +19,7 @@ class DrawWindow(QtWidgets.QMdiSubWindow):
         self.setAttribute(QtCore.Qt.WA_DeleteOnClose)
 
         self.document = document or DrawDocument()
+
         self.setWindowFilePath(self.document.file_path)
         self.setWindowTitle(self.document.name)
 
@@ -26,24 +28,25 @@ class DrawWindow(QtWidgets.QMdiSubWindow):
         self.grid_spacing = 8
         self.show_grid = False
 
-        self.setBackgroundRole(QtGui.QPalette.Dark)
+        self.window = QtWidgets.QMainWindow()
 
-        self.setWidget(QtWidgets.QMainWindow())
-
-        # layout = QtWidgets.QVBoxLayout()
-        # self.widget().setLayout(layout)
+        self.setWidget(self.window)
 
         self.scroll_area = QtWidgets.QScrollArea()
         self.scroll_area.setAlignment(QtCore.Qt.AlignCenter)
+        self.scroll_area.setBackgroundRole(QtGui.QPalette.Dark)
 
         self.widget().setCentralWidget(self.scroll_area)
 
-        #self.setWidget(self.scroll_area)
-        # layout.addWidget(self.scroll_area)
-        # layout.setSpacing(0)
-        # layout.setContentsMargins(0, 0, 0, 0)
-        # self.layout().setSpacing(0)
-        # self.layout().setContentsMargins(0, 0, 0, 0)
+        self.setContentsMargins(0, 0, 0, 0)
+        self.layout().setSpacing(0)
+        self.layout().setContentsMargins(0, 0, 0, 0)
+
+        self.window.setContentsMargins(0, 0, 0, 0)
+        self.window.layout().setSpacing(0)
+        self.window.layout().setContentsMargins(0, 0, 0, 0)
+
+        self.scroll_area.setContentsMargins(0, 0, 0, 0)
 
         self.canvas = CanvasLabel()
         self.scroll_area.setWidget(self.canvas)

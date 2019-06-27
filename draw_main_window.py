@@ -7,7 +7,12 @@ from PySide2 import QtGui
 from draw_document import DrawDocument
 from draw_window import DrawWindow
 
+from palette import PaletteWidget
+
+
 class DrawMainWindow(QtWidgets.QMainWindow):
+    document_changed = QtCore.Signal(DrawDocument)
+
     def __init__(self):
         super().__init__()
         self._open_draw_documents = []
@@ -19,6 +24,9 @@ class DrawMainWindow(QtWidgets.QMainWindow):
         self._actions = {}
         self.setup_actions()
         self.setup_menus()
+        self.setup_docks()
+
+        self.mdi_area.subWindowActivated.connect(self.handle_window_activated)
 
         QtWidgets.QApplication.instance().aboutToQuit.connect(self.on_about_to_quit)
 
@@ -91,6 +99,14 @@ class DrawMainWindow(QtWidgets.QMainWindow):
         window_menu.addAction(self._actions['show_all_windows'])
         window_menu.addAction(self._actions['hide_all_windows'])
 
+    def setup_docks(self):
+        dock = QtWidgets.QDockWidget('palette', self)
+        palette_window = PaletteWidget()
+        dock.setWidget(palette_window)
+        self.addDockWidget(QtCore.Qt.RightDockWidgetArea, dock)
+
+        self.document_changed.connect(palette_window.document_changed)
+
     def handle_open_file(self, checked):
         settings = QtCore.QSettings()
         open_dir = settings.value('editor/open_file_location') or os.path.expanduser('~')
@@ -128,3 +144,7 @@ class DrawMainWindow(QtWidgets.QMainWindow):
         w = self.mdi_area.currentSubWindow()
         if w:
             w.toggle_grid()
+
+    def handle_window_activated(self, window):
+        if window:
+            self.document_changed.emit(window.document)
