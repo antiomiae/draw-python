@@ -17,6 +17,7 @@ class DrawWindow(QtWidgets.QMdiSubWindow):
         super().__init__()
 
         self.setAttribute(QtCore.Qt.WA_DeleteOnClose)
+        self.setStyle(QtWidgets.QStyleFactory.create('fusion'))
 
         self.document = document or DrawDocument()
 
@@ -30,7 +31,7 @@ class DrawWindow(QtWidgets.QMdiSubWindow):
 
         self.window = QtWidgets.QMainWindow()
 
-        self.window.setFrameStyle(QtWidgets.QFrame.NO_FRAME)
+        #self.window.setFrameStyle(QtWidgets.QFrame.NO_FRAME)
 
         self.setWidget(self.window)
 
@@ -66,7 +67,9 @@ class DrawWindow(QtWidgets.QMdiSubWindow):
 
     def render_document(self):
         pixmap = QtGui.QPixmap(self.canvas_size)
+        pixmap.fill(QtGui.QColor('transparent'))
         painter = QtGui.QPainter(pixmap)
+
         for layer in reversed(self.document.layers):
             if not layer.hidden:
                 painter.drawImage(QtCore.QPoint(0, 0), layer.image)
@@ -147,18 +150,26 @@ class CanvasLabel(QtWidgets.QLabel):
         self.overlay_image.fill(QtGui.QColor(0, 0, 0, 0))
 
     def paintEvent(self, event):
-        if self.pixmap():
-            painter = QtGui.QPainter(self)
-            self.drawFrame(painter)
-            cr = self.contentsRect()
-            painter.drawPixmap(cr, self.pixmap())
-            painter.drawImage(cr, self.overlay_image)
+        painter = QtGui.QPainter(self)
+        self.drawFrame(painter)
+        cr = self.contentsRect()
 
-            self.redraw.emit(self)
+        bg_texture = QtGui.QPixmap()
 
-            painter.end()
-        else:
-            super().paintEvent(event)
+        bg_texture.setDevicePixelRatio(self.devicePixelRatioF())
+        bg_texture.load('bg_texture.png')
+        bg_brush = QtGui.QBrush(bg_texture.scaled(bg_texture.size()*2))
+
+        painter.fillRect(cr, bg_brush)
+
+        painter.drawPixmap(cr, self.pixmap())
+        painter.drawImage(cr, self.overlay_image)
+
+        painter.end()
+
+        self.redraw.emit(self)
+
+
 
 
 class CanvasGrid:
