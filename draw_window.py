@@ -28,18 +28,22 @@ class DrawWindow(QtWidgets.QMdiSubWindow):
 
         self.setBackgroundRole(QtGui.QPalette.Dark)
 
-        self.setWidget(QtWidgets.QWidget())
-        layout = QtWidgets.QVBoxLayout()
-        self.widget().setLayout(layout)
+        self.setWidget(QtWidgets.QMainWindow())
+
+        # layout = QtWidgets.QVBoxLayout()
+        # self.widget().setLayout(layout)
 
         self.scroll_area = QtWidgets.QScrollArea()
         self.scroll_area.setAlignment(QtCore.Qt.AlignCenter)
+
+        self.widget().setCentralWidget(self.scroll_area)
+
         #self.setWidget(self.scroll_area)
-        layout.addWidget(self.scroll_area)
-        layout.setSpacing(0)
-        layout.setContentsMargins(0, 0, 0, 0)
-        self.layout().setSpacing(0)
-        self.layout().setContentsMargins(0, 0, 0, 0)
+        # layout.addWidget(self.scroll_area)
+        # layout.setSpacing(0)
+        # layout.setContentsMargins(0, 0, 0, 0)
+        # self.layout().setSpacing(0)
+        # self.layout().setContentsMargins(0, 0, 0, 0)
 
         self.canvas = CanvasLabel()
         self.scroll_area.setWidget(self.canvas)
@@ -96,15 +100,16 @@ class DrawWindow(QtWidgets.QMdiSubWindow):
         self.canvas.update()
 
     def setup_menus(self):
-        toolbar_area = QtWidgets.QFrame()
-        self.widget().layout().insertWidget(0, toolbar_area)
+        # toolbar_area = QtWidgets.QFrame()
+        # self.widget().layout().insertWidget(0, toolbar_area)
+        #
+        # toolbar_area.show()
+        # toolbar_area.setLayout(QtWidgets.QHBoxLayout())
+        # toolbar_area.setBackgroundRole(QtGui.QPalette.Light)
 
-        toolbar_area.show()
-        toolbar_area.setLayout(QtWidgets.QHBoxLayout())
-        toolbar_area.setBackgroundRole(QtGui.QPalette.Light)
-
-        toolbar = QtWidgets.QToolBar()
-        toolbar_area.layout().addWidget(toolbar)
+        # toolbar = QtWidgets.QToolBar()
+        toolbar = self.widget().addToolBar('bar')
+        # toolbar_area.layout().addWidget(toolbar)
 
         toolbar.addAction('grid size')
 

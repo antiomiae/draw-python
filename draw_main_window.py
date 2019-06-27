@@ -34,7 +34,6 @@ class DrawMainWindow(QtWidgets.QMainWindow):
             self.mdi_area.addSubWindow(window)
             window.show()
 
-
     def on_about_to_quit(self):
         settings = QtCore.QSettings()
         open_windows = [window.document.file_path for window in self.mdi_area.subWindowList() if window.document.file_path]
@@ -108,12 +107,12 @@ class DrawMainWindow(QtWidgets.QMainWindow):
             window.show()
 
     def handle_show_all_windows(self, checked):
-        for window in self.open_draw_windows:
+        for window in self.mdi_area.subWindowList():
             window.show()
 
     def handle_hide_all_windows(self, checked):
-        for window in self.open_draw_windows:
-            window.shade()
+        for window in self.mdi_area.subWindowList():
+            window.showShaded()
 
     def handle_view_zoom_in(self, checked):
         w = self.mdi_area.currentSubWindow()
