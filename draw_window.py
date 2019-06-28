@@ -30,26 +30,20 @@ class DrawWindow(QtWidgets.QMdiSubWindow):
         self.show_grid = False
 
         self.window = QtWidgets.QMainWindow()
-
-        #self.window.setFrameStyle(QtWidgets.QFrame.NO_FRAME)
-
         self.setWidget(self.window)
 
         self.scroll_area = QtWidgets.QScrollArea()
+        self.scroll_area.setFrameStyle(QtWidgets.QFrame.NoFrame)
         self.scroll_area.setAlignment(QtCore.Qt.AlignCenter)
         self.scroll_area.setBackgroundRole(QtGui.QPalette.Dark)
-
-        self.widget().setCentralWidget(self.scroll_area)
+        self.scroll_area.setContentsMargins(0, 0, 0, 0)
+        self.window.setCentralWidget(self.scroll_area)
 
         self.setContentsMargins(0, 0, 0, 0)
         self.layout().setSpacing(0)
         self.layout().setContentsMargins(0, 0, 0, 0)
 
-        self.window.setContentsMargins(0, 0, 0, 0)
         self.window.layout().setSpacing(0)
-        self.window.layout().setContentsMargins(0, 0, 0, 0)
-
-        self.scroll_area.setContentsMargins(0, 0, 0, 0)
 
         self.canvas = CanvasLabel()
         self.scroll_area.setWidget(self.canvas)
@@ -95,13 +89,33 @@ class DrawWindow(QtWidgets.QMdiSubWindow):
         new_size = self.canvas_size * self.canvas_scale()
         self.canvas.setFixedSize(new_size)
 
-    def zoom_in(self):
-        self.zoom_level += 0.5
+    def _zoom(self, increment):
+        viewport = self.scroll_area.viewport()
+        cr = viewport.contentsRect()
+        cr_center = cr.center()
+
+        global_center = viewport.mapToGlobal(cr_center)
+        p = self.canvas.mapFromGlobal(global_center)
+        inverse_canvas_transform = self.canvas_transform().inverted()[0]
+        pixel_position = inverse_canvas_transform.map(p)
+
+        self.zoom_level += increment
         self.update_canvas()
 
+        n = self.canvas_transform().map(pixel_position)
+
+        h_scroll_bar = self.scroll_area.horizontalScrollBar()
+        h_scroll_bar.setValue(float(pixel_position.x())/self.canvas_size.width()*h_scroll_bar.maximum())
+
+        v_scroll_bar = self.scroll_area.verticalScrollBar()
+        v_scroll_bar.setValue(float(pixel_position.y())/self.canvas_size.height()*v_scroll_bar.maximum())
+
+
+    def zoom_in(self):
+        self._zoom(0.5)
+
     def zoom_out(self):
-        self.zoom_level -= 0.5
-        self.update_canvas()
+        self._zoom(-0.5)
 
     def toggle_grid(self, checked=False):
         self.show_grid = not self.show_grid

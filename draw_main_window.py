@@ -18,7 +18,10 @@ class DrawMainWindow(QtWidgets.QMainWindow):
         self._open_draw_documents = []
         self.open_draw_windows = []
 
+        self.setDocumentMode(True)
+
         self.mdi_area = QtWidgets.QMdiArea()
+        self.mdi_area.setFrameStyle(0)
         self.setCentralWidget(self.mdi_area)
 
         self._actions = {}
@@ -46,6 +49,7 @@ class DrawMainWindow(QtWidgets.QMainWindow):
         settings = QtCore.QSettings()
         open_windows = [window.document.file_path for window in self.mdi_area.subWindowList() if window.document.file_path]
         settings.setValue('editor/open_windows', open_windows)
+        settings.sync()
 
     def setup_actions(self):
         open_file = QtWidgets.QAction('Open')
