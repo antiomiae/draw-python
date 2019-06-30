@@ -1,3 +1,4 @@
+import sys
 import os
 
 from PySide2 import QtCore
@@ -8,26 +9,47 @@ from draw_document import DrawDocument
 from draw_window import DrawWindow
 
 from palette import PaletteWidget
+from info_panel import InfoPanel
+
+
+class Logger:
+    def __init__(self, parent):
+        self.parent = parent
+        self.terminal = sys.stdout
+
+    def write(self, message):
+        self.terminal.write(message)
+        self.parent.write_log(message)
+
+    def flush(self):
+        self.terminal.flush()
 
 
 class DrawMainWindow(QtWidgets.QMainWindow):
     document_changed = QtCore.Signal(DrawDocument)
 
+    def write_log(self, message):
+        if self.info_panel:
+            self.info_panel.write_text(message)
+
     def __init__(self):
         super().__init__()
-        self._open_draw_documents = []
-        self.open_draw_windows = []
 
-        self.setDocumentMode(True)
+        self._info_bar = None
+
+        #self.setDocumentMode(False)
 
         self.mdi_area = QtWidgets.QMdiArea()
         self.mdi_area.setFrameStyle(0)
+        #self.mdi_area.setStyle(QtWidgets.QStyleFactory.create('fusion'))
+        self.mdi_area.setBackground(QtGui.QBrush(QtGui.QColor('#333')))
         self.setCentralWidget(self.mdi_area)
 
         self._actions = {}
         self.setup_actions()
         self.setup_menus()
         self.setup_docks()
+        self.setup_toolbars()
 
         self.mdi_area.subWindowActivated.connect(self.handle_window_activated)
 
@@ -35,8 +57,14 @@ class DrawMainWindow(QtWidgets.QMainWindow):
 
         self.reload_windows()
 
+        sys.stdout = Logger(self)
+        print('hi')
+
     def reload_windows(self):
         settings = QtCore.QSettings()
+
+        self.restoreGeometry(settings.value('editor/geometry'))
+
         file_paths = settings.value('editor/open_windows', [])
 
         for path in file_paths:
@@ -49,6 +77,7 @@ class DrawMainWindow(QtWidgets.QMainWindow):
         settings = QtCore.QSettings()
         open_windows = [window.document.file_path for window in self.mdi_area.subWindowList() if window.document.file_path]
         settings.setValue('editor/open_windows', open_windows)
+        settings.setValue('editor/geometry', self.saveGeometry())
         settings.sync()
 
     def setup_actions(self):
@@ -83,6 +112,10 @@ class DrawMainWindow(QtWidgets.QMainWindow):
         view_toggle_grid.setShortcut(QtGui.QKeySequence.fromString('Ctrl+G'))
         self._actions['view_toggle_grid'] = view_toggle_grid
 
+        reset_zoom = QtWidgets.QAction('Reset Zoom', self)
+        reset_zoom.setShortcut(QtGui.QKeySequence.fromString('Ctrl+0'))
+        self._actions['reset_zoom'] = reset_zoom
+
         for (name, action) in self._actions.items():
             method_name = 'handle_{}'.format(name)
             if hasattr(self, method_name):
@@ -97,19 +130,37 @@ class DrawMainWindow(QtWidgets.QMainWindow):
         view_menu = self.menuBar().addMenu('View')
         view_menu.addAction(self._actions['view_zoom_in'])
         view_menu.addAction(self._actions['view_zoom_out'])
+        view_menu.addAction(self._actions['reset_zoom'])
         view_menu.addAction(self._actions['view_toggle_grid'])
 
         window_menu = self.menuBar().addMenu('Window')
         window_menu.addAction(self._actions['show_all_windows'])
         window_menu.addAction(self._actions['hide_all_windows'])
 
-    def setup_docks(self):
-        dock = QtWidgets.QDockWidget('palette', self)
-        palette_window = PaletteWidget()
-        dock.setWidget(palette_window)
+    def _create_right_dock_widget(self, name):
+        dock = QtWidgets.QDockWidget(name, self)
         self.addDockWidget(QtCore.Qt.RightDockWidgetArea, dock)
 
+        dock.setSizePolicy(QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Fixed)
+        dock.setFeatures(QtWidgets.QDockWidget.DockWidgetFloatable | QtWidgets.QDockWidget.DockWidgetMovable)
+        dock.setAllowedAreas(QtCore.Qt.RightDockWidgetArea)
+
+        return dock
+
+    def setup_docks(self):
+        dock = self._create_right_dock_widget('palette')
+        palette_window = PaletteWidget()
+        dock.setWidget(palette_window)
         self.document_changed.connect(palette_window.document_changed)
+
+        dock_2 = self._create_right_dock_widget('info')
+        self.info_panel = InfoPanel()
+        dock_2.setWidget(self.info_panel)
+
+        self.splitDockWidget(dock, dock_2, QtCore.Qt.Vertical)
+
+    def setup_toolbars(self):
+        self.addToolBar('toolbar')
 
     def handle_open_file(self, checked):
         settings = QtCore.QSettings()
@@ -152,3 +203,8 @@ class DrawMainWindow(QtWidgets.QMainWindow):
     def handle_window_activated(self, window):
         if window:
             self.document_changed.emit(window.document)
+
+    def handle_reset_zoom(self):
+        w = self.mdi_area.currentSubWindow()
+        if w:
+            w.reset_zoom()

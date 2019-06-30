@@ -10,7 +10,7 @@ from draw_document import DrawDocument
 
 
 class DrawWindow(QtWidgets.QMdiSubWindow):
-    MAX_ZOOM_LEVEL = 5
+    MAX_ZOOM_LEVEL = 7
     MIN_ZOOM_LEVEL = -3
 
     def __init__(self, document = None):
@@ -30,14 +30,17 @@ class DrawWindow(QtWidgets.QMdiSubWindow):
         self.show_grid = False
 
         self.window = QtWidgets.QMainWindow()
-        self.setWidget(self.window)
+        #self.setWidget(self.window)
 
         self.scroll_area = QtWidgets.QScrollArea()
         self.scroll_area.setFrameStyle(QtWidgets.QFrame.NoFrame)
         self.scroll_area.setAlignment(QtCore.Qt.AlignCenter)
         self.scroll_area.setBackgroundRole(QtGui.QPalette.Dark)
         self.scroll_area.setContentsMargins(0, 0, 0, 0)
-        self.window.setCentralWidget(self.scroll_area)
+        self.scroll_area.setHorizontalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOff)
+        self.scroll_area.setVerticalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOff)
+        #self.window.setCentralWidget(self.scroll_area)
+        self.setWidget(self.scroll_area)
 
         self.setContentsMargins(0, 0, 0, 0)
         self.layout().setSpacing(0)
@@ -89,7 +92,7 @@ class DrawWindow(QtWidgets.QMdiSubWindow):
         new_size = self.canvas_size * self.canvas_scale()
         self.canvas.setFixedSize(new_size)
 
-    def _zoom(self, increment):
+    def _zoom(self, zoom):
         viewport = self.scroll_area.viewport()
         cr = viewport.contentsRect()
         cr_center = cr.center()
@@ -99,7 +102,7 @@ class DrawWindow(QtWidgets.QMdiSubWindow):
         inverse_canvas_transform = self.canvas_transform().inverted()[0]
         pixel_position = inverse_canvas_transform.map(p)
 
-        self.zoom_level += increment
+        self.zoom_level = zoom
         self.update_canvas()
 
         n = self.canvas_transform().map(pixel_position)
@@ -110,12 +113,14 @@ class DrawWindow(QtWidgets.QMdiSubWindow):
         v_scroll_bar = self.scroll_area.verticalScrollBar()
         v_scroll_bar.setValue(float(pixel_position.y())/self.canvas_size.height()*v_scroll_bar.maximum())
 
-
     def zoom_in(self):
-        self._zoom(0.5)
+        self._zoom(self.zoom_level+0.5)
 
     def zoom_out(self):
-        self._zoom(-0.5)
+        self._zoom(self.zoom_level-0.5)
+
+    def reset_zoom(self):
+        self._zoom(0)
 
     def toggle_grid(self, checked=False):
         self.show_grid = not self.show_grid

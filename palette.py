@@ -1,64 +1,114 @@
+import sys
+
 from PySide2 import QtGui
 from PySide2 import QtWidgets
 from PySide2 import QtCore
 
 from draw_document import DrawDocument
 
+
 class PaletteWidget(QtWidgets.QWidget):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+
 
         self.palette = []
         self._width = 10
         self._height = 10
         self._item_size = QtCore.QSize(10, 10)
+        self.toolbar = None
 
         self.setLayout(QtWidgets.QVBoxLayout())
 
+        self.scroll_area = QtWidgets.QScrollArea()
         self.item_container = QtWidgets.QWidget()
-        item_grid = QtWidgets.QGridLayout()
-        self.item_container.setLayout(item_grid)
+        #self.scroll_area.setWidget(self.item_container)
+        #self.scroll_area.setContentsMargins(0, 0, 0, 0)
 
-        item_grid.setSpacing(1)
-        item_grid.setContentsMargins(0, 0, 0, 0)
+        #self.layout().addWidget(self.scroll_area)
+
+        #self.scroll_area.setAlignment(QtCore.Qt.AlignLeft | QtCore.Qt.AlignTop)
+
 
         self.layout().addWidget(self.item_container)
 
+        item_grid = QtWidgets.QGridLayout()
+        item_grid.setSpacing(1)
+        item_grid.setContentsMargins(0, 0, 0, 0)
+        self.item_container.setLayout(item_grid)
+
+        self.setup_size_policies()
+        self.setup_toolbar()
+
+        self.layout().insertStretch(-1, 1)
+
+    def setup_size_policies(self):
+        #self.setSizePolicy(QtWidgets.QSizePolicy.Fixed, QtWidgets.QSizePolicy.Fixed)
         self.setSizePolicy(QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Minimum)
         self.item_container.setSizePolicy(QtWidgets.QSizePolicy.Fixed, QtWidgets.QSizePolicy.Fixed)
+
+    def setup_toolbar(self):
+        self.toolbar = QtWidgets.QToolBar(self)
+        self.layout().insertWidget(0, self.toolbar)
+        self.toolbar.setIconSize(QtCore.QSize(16, 16))
+        self.toolbar.setContentsMargins(0, 0, 0, 0)
+        self.toolbar.setSizePolicy(QtWidgets.QSizePolicy.Fixed, QtWidgets.QSizePolicy.Fixed)
+
+        enlarge_icon = QtGui.QIcon('icons/palette_icons_enlarge.png')
+        shrink_icon = QtGui.QIcon('icons/palette_icons_shrink.png')
+        delete_icon = QtGui.QIcon('icons/palette_icons_delete.png')
+        add_icon = QtGui.QIcon('icons/palette_icons_add.png')
+
+        add_action = self.toolbar.addAction(add_icon, 'add', self.handle_add)
+        shrink_action = self.toolbar.addAction(shrink_icon, 'shrink palette', self.handle_shrink)
+        enlarge_action = self.toolbar.addAction(enlarge_icon, 'enlarge palette', self.handle_enlarge)
+        delete_action = self.toolbar.addAction(delete_icon, 'delete', self.handle_delete)
+
+    def handle_shrink(self):
+        print('palette shrink')
+        if self._item_size.width() > 8:
+            self._item_size -= QtCore.QSize(1, 1)
+        self.update_items()
+
+    def handle_enlarge(self):
+        print('palette enlarge')
+        if self._item_size.width() < 64:
+            self._item_size += QtCore.QSize(1, 1)
+        self.update_items()
+
+    def handle_delete(self):
+        print('palette delete')
+
+    def handle_add(self):
+        print('palette add')
+        if self.palette:
+            pass
+            # show color dialog
 
     def set_palette(self, palette):
         self.palette = palette
         self.update_items()
-        self.update()
 
     def update_items(self):
-        layout = self.item_container.layout()
+        layout: QtWidgets.QGridLayout = self.item_container.layout()
 
         pool = [layout.takeAt(i).widget() for i in reversed(range(layout.count()))]
 
         for i, color in enumerate(self.palette):
-            palette_item = (pool and pool.pop(-1)) or PaletteItem(size=self._item_size)
-            layout.addWidget(palette_item, i // self._width, i % self._width)
+            palette_item = (pool and pool.pop(-1)) or PaletteItem(self, size=self._item_size)
+            palette_item.setFixedSize(self._item_size)
+            layout.addWidget(palette_item, (i // self._width), (i % self._width))
 
-            if color:
-                _color = QtGui.QColor('#'+color)
-                #palette_item.show()
-                if not palette_item.isVisibleTo(self):
-                    palette_item.show()
-            else:
-                _color = QtGui.QColor('transparent')
-                palette_item.hide()
-
-            palette_item.color = _color
+            color = QtGui.QColor('#'+color) if color else None
+            palette_item.color = color
 
         for leftover in pool:
             leftover.hide()
             leftover.deleteLater()
 
-        #self.item_container.updateGeometry()
-
-
+        self.item_container.updateGeometry()
+        self.updateGeometry()
+        self.parent().updateGeometry()
 
     @QtCore.Slot(DrawDocument)
     def document_changed(self, document):
@@ -67,15 +117,24 @@ class PaletteWidget(QtWidgets.QWidget):
 
 
 class PaletteItem(QtWidgets.QWidget):
-    def __init__(self, color=QtCore.Qt.GlobalColor.white, size=QtCore.QSize(10, 10)):
-        super().__init__()
-        self.color = color
-        self.setMinimumSize(QtCore.QSize(10, 10))
-        self.setMaximumSize(QtCore.QSize(10, 10))
+    def __init__(self, *args, color=QtCore.Qt.GlobalColor.white, size=QtCore.QSize(10, 10)):
+        super().__init__(*args)
+        self._color = color
+        #self.setMinimumSize(QtCore.QSize(10, 10))
+        #self.setMaximumSize(QtCore.QSize(10, 10))
         self._size = size
         self.setSizePolicy(QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Minimum)
         self.setFixedSize(self._size)
         self.setContentsMargins(0, 0, 0, 0)
+
+    @property
+    def color(self):
+        return self._color
+
+    @color.setter
+    def color(self, color):
+        self._color = color
+        self.update()
 
     def sizeHint(self):
         return self._size
@@ -86,4 +145,9 @@ class PaletteItem(QtWidgets.QWidget):
     def paintEvent(self, event):
         cr = self.contentsRect()
         painter = QtGui.QPainter(self)
-        painter.fillRect(cr, self.color)
+        if self.color:
+            painter.fillRect(cr, self.color)
+        else:
+            painter.drawRect(self.rect())
+
+        painter.end()
