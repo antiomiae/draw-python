@@ -23,6 +23,7 @@ class DrawLayer():
 
 class DrawDocument(QtCore.QObject):
     document_changed = QtCore.Signal((QtCore.QObject,))
+    layer_order_changed = QtCore.Signal((QtCore.QObject,))
 
     def __init__(self, file_path=None, size=QtCore.QSize(32, 32)):
         super().__init__()
@@ -58,3 +59,11 @@ class DrawDocument(QtCore.QObject):
                 layer.alpha = info['alpha']
                 layer.name = info['name']
                 self.layers.append(layer)
+
+    def move_layer(self, layer, index):
+        current_index = self.layers.index(layer)
+        if current_index != -1 and current_index != index:
+            self.layers.pop(current_index)
+            self.layers.insert(index, layer)
+            self.layer_order_changed.emit(self)
+

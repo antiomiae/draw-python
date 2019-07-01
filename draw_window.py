@@ -29,9 +29,6 @@ class DrawWindow(QtWidgets.QMdiSubWindow):
         self.grid_spacing = 8
         self.show_grid = False
 
-        self.window = QtWidgets.QMainWindow()
-        #self.setWidget(self.window)
-
         self.scroll_area = QtWidgets.QScrollArea()
         self.scroll_area.setFrameStyle(QtWidgets.QFrame.NoFrame)
         self.scroll_area.setAlignment(QtCore.Qt.AlignCenter)
@@ -39,14 +36,11 @@ class DrawWindow(QtWidgets.QMdiSubWindow):
         self.scroll_area.setContentsMargins(0, 0, 0, 0)
         self.scroll_area.setHorizontalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOff)
         self.scroll_area.setVerticalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOff)
-        #self.window.setCentralWidget(self.scroll_area)
         self.setWidget(self.scroll_area)
 
         self.setContentsMargins(0, 0, 0, 0)
         self.layout().setSpacing(0)
         self.layout().setContentsMargins(0, 0, 0, 0)
-
-        self.window.layout().setSpacing(0)
 
         self.canvas = CanvasLabel()
         self.scroll_area.setWidget(self.canvas)
@@ -173,10 +167,8 @@ class CanvasLabel(QtWidgets.QLabel):
         self.drawFrame(painter)
         cr = self.contentsRect()
 
-        bg_texture = QtGui.QPixmap()
-
+        bg_texture = QtGui.QPixmap(':/textures/bg.png')
         bg_texture.setDevicePixelRatio(self.devicePixelRatioF())
-        bg_texture.load('bg_texture.png')
         bg_brush = QtGui.QBrush(bg_texture.scaled(bg_texture.size()*2))
 
         painter.fillRect(cr, bg_brush)
@@ -187,8 +179,6 @@ class CanvasLabel(QtWidgets.QLabel):
         painter.end()
 
         self.redraw.emit(self)
-
-
 
 
 class CanvasGrid:

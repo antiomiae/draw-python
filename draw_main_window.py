@@ -5,11 +5,14 @@ from PySide2 import QtCore
 from PySide2 import QtWidgets
 from PySide2 import QtGui
 
+import resources
+
 from draw_document import DrawDocument
 from draw_window import DrawWindow
 
 from palette import PaletteWidget
 from info_panel import InfoPanel
+from layer import LayerPanel
 
 
 class Logger:
@@ -42,8 +45,13 @@ class DrawMainWindow(QtWidgets.QMainWindow):
         self.mdi_area = QtWidgets.QMdiArea()
         self.mdi_area.setFrameStyle(0)
         #self.mdi_area.setStyle(QtWidgets.QStyleFactory.create('fusion'))
-        self.mdi_area.setBackground(QtGui.QBrush(QtGui.QColor('#333')))
+        self.mdi_area.setBackground(QtGui.QBrush(QtGui.QColor('#444')))
         self.setCentralWidget(self.mdi_area)
+
+        p = self.palette()
+        p.setColor(QtGui.QPalette.Dark, QtGui.QColor('#444'))
+        p.setColor(QtGui.QPalette.Window, QtGui.QColor('#CCC'))
+        self.setPalette(p)
 
         self._actions = {}
         self.setup_actions()
@@ -57,7 +65,7 @@ class DrawMainWindow(QtWidgets.QMainWindow):
 
         self.reload_windows()
 
-        sys.stdout = Logger(self)
+        #sys.stdout = Logger(self)
         print('hi')
 
     def reload_windows(self):
@@ -153,11 +161,14 @@ class DrawMainWindow(QtWidgets.QMainWindow):
         dock.setWidget(palette_window)
         self.document_changed.connect(palette_window.document_changed)
 
+        self.layer_dock = self._create_right_dock_widget('layers')
+        layer_panel = LayerPanel()
+        self.layer_dock.setWidget(layer_panel)
+        layer_panel.register_window(self)
+
         dock_2 = self._create_right_dock_widget('info')
         self.info_panel = InfoPanel()
         dock_2.setWidget(self.info_panel)
-
-        self.splitDockWidget(dock, dock_2, QtCore.Qt.Vertical)
 
     def setup_toolbars(self):
         self.addToolBar('toolbar')
@@ -174,7 +185,6 @@ class DrawMainWindow(QtWidgets.QMainWindow):
             document = DrawDocument(file_name)
             window = DrawWindow(document)
             self.mdi_area.addSubWindow(window)
-            self.open_draw_windows.append(window)
             window.show()
 
     def handle_show_all_windows(self, checked):

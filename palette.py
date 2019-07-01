@@ -20,49 +20,64 @@ class PaletteWidget(QtWidgets.QWidget):
 
         self.setLayout(QtWidgets.QVBoxLayout())
 
-        self.scroll_area = QtWidgets.QScrollArea()
-        self.item_container = QtWidgets.QWidget()
-        #self.scroll_area.setWidget(self.item_container)
-        #self.scroll_area.setContentsMargins(0, 0, 0, 0)
-
-        #self.layout().addWidget(self.scroll_area)
-
-        #self.scroll_area.setAlignment(QtCore.Qt.AlignLeft | QtCore.Qt.AlignTop)
-
-
-        self.layout().addWidget(self.item_container)
-
-        item_grid = QtWidgets.QGridLayout()
-        item_grid.setSpacing(1)
-        item_grid.setContentsMargins(0, 0, 0, 0)
-        self.item_container.setLayout(item_grid)
-
-        self.setup_size_policies()
         self.setup_toolbar()
 
-        self.layout().insertStretch(-1, 1)
+        self.scroll_area = QtWidgets.QScrollArea(self)
+        self.scroll_area.setBackgroundRole(QtGui.QPalette.Dark)
+        self.layout().addWidget(self.scroll_area)
+
+        self.item_container = QtWidgets.QWidget()
+        #self.item_container.setMinimumSize(24, 24)
+        self.item_container.setBackgroundRole(QtGui.QPalette.Window)
+
+        self.scroll_area.setWidget(self.item_container)
+
+        # l = QtWidgets.QLabel()
+        # l.setPixmap(QtGui.QPixmap.fromImage(QtGui.QImage('icons/gloomp.png')))
+        # self.scroll_area.setWidget(l)
+
+        #self.scroll_area.setAlignment(QtCore.Qt.AlignLeft | QtCore.Qt.AlignTop)
+        #self.layout().addWidget(self.item_container)
+
+        item_grid = QtWidgets.QGridLayout()
+        item_grid.setSpacing(0)
+        #item_grid.setContentsMargins(0, 0, 0, 0)
+        self.item_container.setLayout(item_grid)
+        self.scroll_area.setFrameStyle(0)
+        self.scroll_area.setHorizontalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOff)
+        self.scroll_area.setVerticalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOff)
+
+        self.setup_size_policies()
+
+        self.restore_settings()
 
     def setup_size_policies(self):
-        #self.setSizePolicy(QtWidgets.QSizePolicy.Fixed, QtWidgets.QSizePolicy.Fixed)
-        self.setSizePolicy(QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Minimum)
-        self.item_container.setSizePolicy(QtWidgets.QSizePolicy.Fixed, QtWidgets.QSizePolicy.Fixed)
+        self.item_container.layout().setSizeConstraint(QtWidgets.QLayout.SetMinAndMaxSize)
 
     def setup_toolbar(self):
         self.toolbar = QtWidgets.QToolBar(self)
         self.layout().insertWidget(0, self.toolbar)
         self.toolbar.setIconSize(QtCore.QSize(16, 16))
         self.toolbar.setContentsMargins(0, 0, 0, 0)
-        self.toolbar.setSizePolicy(QtWidgets.QSizePolicy.Fixed, QtWidgets.QSizePolicy.Fixed)
+        self.toolbar.setSizePolicy(QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Fixed)
 
-        enlarge_icon = QtGui.QIcon('icons/palette_icons_enlarge.png')
-        shrink_icon = QtGui.QIcon('icons/palette_icons_shrink.png')
-        delete_icon = QtGui.QIcon('icons/palette_icons_delete.png')
-        add_icon = QtGui.QIcon('icons/palette_icons_add.png')
+        enlarge_icon = QtGui.QIcon(':/icons/palette_icons_enlarge.png')
+        shrink_icon = QtGui.QIcon(':/icons/palette_icons_shrink.png')
+        delete_icon = QtGui.QIcon(':/icons/palette_icons_delete.png')
+        add_icon = QtGui.QIcon(':/icons/palette_icons_add.png')
 
         add_action = self.toolbar.addAction(add_icon, 'add', self.handle_add)
         shrink_action = self.toolbar.addAction(shrink_icon, 'shrink palette', self.handle_shrink)
         enlarge_action = self.toolbar.addAction(enlarge_icon, 'enlarge palette', self.handle_enlarge)
         delete_action = self.toolbar.addAction(delete_icon, 'delete', self.handle_delete)
+
+    def save_settings(self):
+        settings = QtCore.QSettings()
+        settings.setValue('editor/palette/item_size', self._item_size)
+
+    def restore_settings(self):
+        settings = QtCore.QSettings()
+        self._item_size = settings.value('editor/palette/item_size', self._item_size)
 
     def handle_shrink(self):
         print('palette shrink')
@@ -95,7 +110,7 @@ class PaletteWidget(QtWidgets.QWidget):
         pool = [layout.takeAt(i).widget() for i in reversed(range(layout.count()))]
 
         for i, color in enumerate(self.palette):
-            palette_item = (pool and pool.pop(-1)) or PaletteItem(self, size=self._item_size)
+            palette_item = (pool and pool.pop(-1)) or PaletteItem(size=self._item_size)
             palette_item.setFixedSize(self._item_size)
             layout.addWidget(palette_item, (i // self._width), (i % self._width))
 
