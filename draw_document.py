@@ -4,7 +4,7 @@ from draw_file import DrawFile
 from dataclasses import dataclass
 
 @dataclass
-class DrawLayer():
+class DrawLayer:
     size: QtCore.QSize
     image: QtGui.QImage
 

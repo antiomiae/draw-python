@@ -63,15 +63,30 @@ class LayerPanel(QWidget):
         pass
 
     def handle_enlarge(self):
-        pass
+        size = self._layer_list._item_size + QSize(2, 2)
+        self._layer_list.set_item_size(size.boundedTo(QSize(128, 128)))
 
     def handle_shrink(self):
-        pass
+        size = self._layer_list._item_size - QSize(2, 2)
+        self._layer_list.set_item_size(size.expandedTo(QSize(32, 32)))
 
 
 class LayerList(QScrollArea):
     def __init__(self, *args):
         super().__init__(*args)
+
+        self._current_item = None
+        self._layers = []
+        self._item_size = QSize(75, 50)
+
+        self._item_container = QWidget()
+        self.setWidget(self._item_container)
+        self._items_layout = QVBoxLayout()
+        self._item_container.setLayout(self._items_layout)
+
+        self._items_layout.setSpacing(1)
+        self._items_layout.setContentsMargins(0, 0, 0, 0)
+        self._items_layout.setSizeConstraint(QLayout.SetMinAndMaxSize)
 
         self.setFrameStyle(0)
         self.setContentsMargins(0, 0, 0, 0)
@@ -79,17 +94,12 @@ class LayerList(QScrollArea):
         self.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
         self.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
 
-        self._item_container = QWidget()
-        self.setWidget(self._item_container)
-        self._items_layout = QVBoxLayout()
-        self._item_container.setLayout(self._items_layout)
-
-        self._items_layout.setSpacing(0)
-        self._items_layout.setContentsMargins(0, 0, 0, 0)
-
-        self._items_layout.setSizeConstraint(QLayout.SetMinAndMaxSize)
-
-        self._layers = []
+    def set_item_size(self, size):
+        self._item_size = size
+        for item in self._items_layout.children():
+            item.widget().set_item_size(size)
+        self.update()
+        self.updateGeometry()
 
     def set_layers(self, layers):
         self._layers = layers
@@ -102,12 +112,25 @@ class LayerList(QScrollArea):
             item = pool and pool.pop() or LayerListItem()
             self._items_layout.addWidget(item)
             item.set_layer(layer)
+            item.set_item_size(self._item_size)
+            item.focused.connect(self.item_received_focus)
 
         for item in pool:
             pool.deleteLater()
 
+    def item_received_focus(self, item):
+        index = self._layers.index(item._layer)
+        if index != -1:
+            self.current_layer = item._layer
+            if self._current_item:
+                self._current_item.set_current(False)
+            item.set_current(True)
+            self._current_item = item
+
 
 class LayerListItem(QFrame):
+    focused = Signal((QObject,))
+
     def __init__(self, *args):
         super().__init__(*args)
 
@@ -118,10 +141,14 @@ class LayerListItem(QFrame):
         self.setFocusPolicy(Qt.ClickFocus)
 
         self.setLayout(QHBoxLayout())
+        self.layout().setSizeConstraint(QLayout.SetMinAndMaxSize)
 
         self._layer_view_label = QLabel()
         self.layout().addWidget(self._layer_view_label)
         self._layer_view_label.setAutoFillBackground(True)
+        #self._layer_view_label.setScaledContents(True)
+        self._layer_view_label.setSizePolicy(QSizePolicy.Minimum, QSizePolicy.Minimum)
+
         bg = QPixmap(':/textures/bg.png')
         p = self._layer_view_label.palette()
         p.setBrush(QPalette.Window, bg)
@@ -141,11 +168,19 @@ class LayerListItem(QFrame):
         self._layer_view_label.setFixedSize(self._layer_view_label.pixmap().size())
         self._layer_name_label.setText(self._layer.name)
 
-    def mousePressEvent(self, event: QMouseEvent):
-        print(event)
-
     def focusInEvent(self, event: QFocusEvent):
-        print('focus in', event)
+        self.focused.emit(self)
 
-    def focusOutEvent(self, event: QFocusEvent):
-        print('focus out', event)
+    def set_item_size(self, size):
+        new_size = self._layer_view_label.pixmap().size().scaled(size, Qt.KeepAspectRatio)
+        self._layer_view_label.setPixmap(QPixmap(self._layer.image.scaled(new_size)))
+        self._layer_view_label.setFixedSize(new_size)
+
+    def set_current(self, current):
+        if current:
+            #self.setFrameStyle(QFrame.Box)
+            #self.setLineWidth(1)
+            self.setBackgroundRole(QPalette.Light)
+        else:
+            self.setBackgroundRole(QPalette.Window)
+            #self.setFrameStyle(0)
