@@ -32,7 +32,7 @@ class LayerPanel(QWidget):
             self.clean_up()
 
     def clean_up(self):
-        pass
+        self._layer_list.set_layers([])
 
     def layer_order_changed(self, document):
         print('layer_order_changed')
@@ -81,9 +81,9 @@ class LayerList(QScrollArea):
 
         self._item_container = QWidget()
         self.setWidget(self._item_container)
+
         self._items_layout = QVBoxLayout()
         self._item_container.setLayout(self._items_layout)
-
         self._items_layout.setSpacing(1)
         self._items_layout.setContentsMargins(0, 0, 0, 0)
         self._items_layout.setSizeConstraint(QLayout.SetMinAndMaxSize)
@@ -98,8 +98,8 @@ class LayerList(QScrollArea):
         self._item_size = size
         for item in self._items_layout.children():
             item.widget().set_item_size(size)
-        self.update()
-        self.updateGeometry()
+        # self.update()
+        # self.updateGeometry()
 
     def set_layers(self, layers):
         self._layers = layers
@@ -116,7 +116,10 @@ class LayerList(QScrollArea):
             item.focused.connect(self.item_received_focus)
 
         for item in pool:
-            pool.deleteLater()
+            item.deleteLater()
+
+        # self._items_layout.update()
+        # self.update()
 
     def item_received_focus(self, item):
         index = self._layers.index(item._layer)
@@ -135,6 +138,7 @@ class LayerListItem(QFrame):
         super().__init__(*args)
 
         self._layer = None
+        self._item_size = None
         self.setContentsMargins(0, 0, 0, 0)
         self.setBackgroundRole(QPalette.Window)
 
@@ -146,8 +150,7 @@ class LayerListItem(QFrame):
         self._layer_view_label = QLabel()
         self.layout().addWidget(self._layer_view_label)
         self._layer_view_label.setAutoFillBackground(True)
-        #self._layer_view_label.setScaledContents(True)
-        self._layer_view_label.setSizePolicy(QSizePolicy.Minimum, QSizePolicy.Minimum)
+        # self._layer_view_label.setSizePolicy(QSizePolicy.Minimum, QSizePolicy.Minimum)
 
         bg = QPixmap(':/textures/bg.png')
         p = self._layer_view_label.palette()
@@ -165,22 +168,21 @@ class LayerListItem(QFrame):
     def set_layer(self, layer):
         self._layer = layer
         self._layer_view_label.setPixmap(QPixmap(self._layer.image))
-        self._layer_view_label.setFixedSize(self._layer_view_label.pixmap().size())
         self._layer_name_label.setText(self._layer.name)
 
     def focusInEvent(self, event: QFocusEvent):
         self.focused.emit(self)
 
     def set_item_size(self, size):
-        new_size = self._layer_view_label.pixmap().size().scaled(size, Qt.KeepAspectRatio)
-        self._layer_view_label.setPixmap(QPixmap(self._layer.image.scaled(new_size)))
-        self._layer_view_label.setFixedSize(new_size)
+        new_size = self._layer.image.size.scaled(size, Qt.KeepAspectRatio)
+        #self._layer_view_label.setFixedSize(new_size)
+        self._layer_view_label.resize(new_size)
+        self._layer_view_label.updateGeometry()
+        self._layer_view_label.adjustSize()
+        self._layer_view_label.update()
 
     def set_current(self, current):
         if current:
-            #self.setFrameStyle(QFrame.Box)
-            #self.setLineWidth(1)
             self.setBackgroundRole(QPalette.Light)
         else:
             self.setBackgroundRole(QPalette.Window)
-            #self.setFrameStyle(0)

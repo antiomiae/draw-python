@@ -158,7 +158,7 @@ class CanvasLabel(QtWidgets.QLabel):
         self.setup_overlay_image(size)
 
     def setup_overlay_image(self, size):
-        self.overlay_image = QImage(size, QImage.Format_ARGB32_Premultiplied)
+        self.overlay_image = QImage(size, QImage.Format_ARGB32)
         self.overlay_image.setDevicePixelRatio(self.devicePixelRatioF())
         self.overlay_image.fill(QtGui.QColor(0, 0, 0, 0))
 
