@@ -20,7 +20,7 @@ class LayerPanel(QWidget):
 
     def restore_settings(self):
         settings = QSettings()
-        self.restoreGeometry(settings.value('editor/layer_panel/geometry'), self.geometry())
+        self.restoreGeometry(settings.value('editor/layer_panel/geometry', self.saveGeometry()))
 
     def register_window(self, main_window):
         print('register_window')
@@ -70,11 +70,11 @@ class LayerPanel(QWidget):
     def handle_enlarge(self):
         print(type(self).__name__, 'handle_enlarge')
         size = self._layer_list.item_size + QSize(2, 2)
-        self._layer_list.set_item_size(size.boundedTo(QSize(128, 128)))
+        self._layer_list.set_item_size(size.boundedTo(QSize(256, 256)))
 
     def handle_shrink(self):
         size = self._layer_list.item_size - QSize(2, 2)
-        self._layer_list.set_item_size(size.expandedTo(QSize(32, 32)))
+        self._layer_list.set_item_size(size.expandedTo(QSize(16, 16)))
 
 
 class LayerList(QScrollArea):
