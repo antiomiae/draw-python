@@ -16,6 +16,11 @@ class LayerPanel(QWidget):
         self.layout().addWidget(self._layer_list)
 
         self.setup_toolbar()
+        self.restore_settings()
+
+    def restore_settings(self):
+        settings = QSettings()
+        self.restoreGeometry(settings.value('editor/layer_panel/geometry'), self.geometry())
 
     def register_window(self, main_window):
         print('register_window')
@@ -63,11 +68,12 @@ class LayerPanel(QWidget):
         pass
 
     def handle_enlarge(self):
-        size = self._layer_list._item_size + QSize(2, 2)
+        print(type(self).__name__, 'handle_enlarge')
+        size = self._layer_list.item_size + QSize(2, 2)
         self._layer_list.set_item_size(size.boundedTo(QSize(128, 128)))
 
     def handle_shrink(self):
-        size = self._layer_list._item_size - QSize(2, 2)
+        size = self._layer_list.item_size - QSize(2, 2)
         self._layer_list.set_item_size(size.expandedTo(QSize(32, 32)))
 
 
@@ -77,7 +83,8 @@ class LayerList(QScrollArea):
 
         self._current_item = None
         self._layers = []
-        self._item_size = QSize(75, 50)
+        self.current_layer = None
+        self.item_size = QSize(75, 50)
 
         self._item_container = QWidget()
         self.setWidget(self._item_container)
@@ -95,11 +102,10 @@ class LayerList(QScrollArea):
         self.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
 
     def set_item_size(self, size):
-        self._item_size = size
-        for item in self._items_layout.children():
+        print(type(self).__name__, 'set_item_size')
+        self.item_size = size
+        for item in (self._items_layout.itemAt(i) for i in range(self._items_layout.count())):
             item.widget().set_item_size(size)
-        # self.update()
-        # self.updateGeometry()
 
     def set_layers(self, layers):
         self._layers = layers
@@ -112,14 +118,11 @@ class LayerList(QScrollArea):
             item = pool and pool.pop() or LayerListItem()
             self._items_layout.addWidget(item)
             item.set_layer(layer)
-            item.set_item_size(self._item_size)
+            item.set_item_size(self.item_size)
             item.focused.connect(self.item_received_focus)
 
         for item in pool:
             item.deleteLater()
-
-        # self._items_layout.update()
-        # self.update()
 
     def item_received_focus(self, item):
         index = self._layers.index(item._layer)
@@ -141,16 +144,17 @@ class LayerListItem(QFrame):
         self._item_size = None
         self.setContentsMargins(0, 0, 0, 0)
         self.setBackgroundRole(QPalette.Window)
+        self.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
 
         self.setFocusPolicy(Qt.ClickFocus)
 
         self.setLayout(QHBoxLayout())
-        self.layout().setSizeConstraint(QLayout.SetMinAndMaxSize)
+        #self.layout().setSizeConstraint(QLayout.SetMinAndMaxSize)
 
-        self._layer_view_label = QLabel()
+        self._layer_view_label = LayerImageView()
         self.layout().addWidget(self._layer_view_label)
         self._layer_view_label.setAutoFillBackground(True)
-        # self._layer_view_label.setSizePolicy(QSizePolicy.Minimum, QSizePolicy.Minimum)
+        self._layer_view_label.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
 
         bg = QPixmap(':/textures/bg.png')
         p = self._layer_view_label.palette()
@@ -167,22 +171,42 @@ class LayerListItem(QFrame):
 
     def set_layer(self, layer):
         self._layer = layer
-        self._layer_view_label.setPixmap(QPixmap(self._layer.image))
+        self._layer_view_label.set_image(self._layer.image)
         self._layer_name_label.setText(self._layer.name)
 
     def focusInEvent(self, event: QFocusEvent):
         self.focused.emit(self)
 
     def set_item_size(self, size):
-        new_size = self._layer.image.size.scaled(size, Qt.KeepAspectRatio)
-        #self._layer_view_label.setFixedSize(new_size)
-        self._layer_view_label.resize(new_size)
-        self._layer_view_label.updateGeometry()
-        self._layer_view_label.adjustSize()
-        self._layer_view_label.update()
+        print(type(self).__name__, 'set_item_size')
+        self._layer_view_label.max_size = size
+        self._layer_view_label.update_size()
+        self.updateGeometry()
 
     def set_current(self, current):
         if current:
             self.setBackgroundRole(QPalette.Light)
         else:
             self.setBackgroundRole(QPalette.Window)
+
+
+class LayerImageView(QWidget):
+    def __init__(self, *args):
+        super().__init__(*args)
+
+        self._image = QImage()
+        self.max_size = QSize(128, 128)
+
+    def set_image(self, image):
+        self._image = image
+        self.update_size()
+
+    def update_size(self):
+        if self._image:
+            new_size = self._image.rect().size().scaled(self.max_size, Qt.KeepAspectRatio)
+            self.setFixedSize(new_size)
+
+    def paintEvent(self, event: QPaintEvent):
+        painter = QPainter(self)
+        painter.drawImage(self.contentsRect(), self._image)
+        painter.end()
