@@ -18,9 +18,15 @@ class LayerPanel(QWidget):
         self.setup_toolbar()
         self.restore_settings()
 
+        QApplication.instance().aboutToQuit.connect(self.save_settings)
+
     def restore_settings(self):
         settings = QSettings()
         self.restoreGeometry(settings.value('editor/layer_panel/geometry', self.saveGeometry()))
+
+    def save_settings(self):
+        settings = QSettings()
+        settings.setValue('editor/layer_panel/geometry', self.saveGeometry())
 
     def register_window(self, main_window):
         print('register_window')
@@ -137,11 +143,31 @@ class LayerList(QScrollArea):
 class LayerListItem(QFrame):
     focused = Signal((QObject,))
 
+    __stylesheet = """
+    LayerListItem {
+      background: #eee;
+      margin-top: 1px;
+      margin-bottom: 1px;
+      margin-left: 2px;
+      margin-right: 2px;
+    }
+    
+    LayerListItem[current=true] {
+      border: 2px solid #1111ee;
+      border-top-width: 1px;
+      border-bottom-width: 1px;
+      margin: 0px;
+    }
+    """
+
     def __init__(self, *args):
         super().__init__(*args)
 
+        self.setStyleSheet(self.__stylesheet)
+        self.setProperty('current', False)
         self._layer = None
         self._item_size = None
+        self.current = False
         self.setContentsMargins(0, 0, 0, 0)
         self.setBackgroundRole(QPalette.Window)
         self.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
@@ -153,7 +179,7 @@ class LayerListItem(QFrame):
 
         self._layer_view_label = LayerImageView()
         self.layout().addWidget(self._layer_view_label)
-        self._layer_view_label.setAutoFillBackground(True)
+        #elf._layer_view_label.setAutoFillBackground(True)
         self._layer_view_label.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
 
         bg = QPixmap(':/textures/bg.png')
@@ -161,10 +187,10 @@ class LayerListItem(QFrame):
         p.setBrush(QPalette.Window, bg)
         self._layer_view_label.setPalette(p)
 
-        p = self.palette()
-        p.setColor(QPalette.Window, QColor('#EEE'))
-        self.setPalette(p)
-        self.setAutoFillBackground(True)
+        self._visibility_button = QToolButton()
+        self._visibility_button.setIcon(QIcon(':/icons/layer_icons_eye_open'))
+        self._visibility_button.clicked.connect(self.toggle_visible)
+        self.layout().addWidget(self._visibility_button)
 
         self._layer_name_label = QLabel()
         self.layout().addWidget(self._layer_name_label, Qt.AlignCenter)
@@ -184,10 +210,19 @@ class LayerListItem(QFrame):
         self.updateGeometry()
 
     def set_current(self, current):
-        if current:
-            self.setBackgroundRole(QPalette.Light)
+        self.current = current
+        self.setProperty('current', current)
+        self.style().unpolish(self)
+        self.style().polish(self)
+
+    def toggle_visible(self):
+        self._layer.hidden = not self._layer.hidden
+        self._layer.propagate_changes()
+        if not self._layer.hidden:
+            self._visibility_button.setIcon(QIcon(':/icons/layer_icons_eye_open'))
         else:
-            self.setBackgroundRole(QPalette.Window)
+            self._visibility_button.setIcon(QIcon(':/icons/layer_icons_eye_closed'))
+
 
 
 class LayerImageView(QWidget):

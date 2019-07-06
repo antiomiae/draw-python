@@ -1,16 +1,14 @@
 from PySide2 import QtCore
 from PySide2 import QtGui
 from draw_file import DrawFile
-from dataclasses import dataclass
+#from dataclasses import dataclass
 
-@dataclass
-class DrawLayer:
-    size: QtCore.QSize
-    image: QtGui.QImage
-
+#@dataclass
+class DrawLayer(QtCore.QObject):
     updated = QtCore.Signal((QtCore.QObject,))
 
     def __init__(self, size=QtCore.QSize(128, 128)):
+        super().__init__()
         self.name = ''
         self.size = size
         self.image = QtGui.QImage(self.size, QtGui.QImage.Format_ARGB32)
@@ -19,6 +17,9 @@ class DrawLayer:
         self.hidden = False
         self.blend_mode = 'normal'
         self.alpha = 255
+
+    def propagate_changes(self):
+        self.updated.emit(self)
 
 
 class DrawDocument(QtCore.QObject):
@@ -59,6 +60,7 @@ class DrawDocument(QtCore.QObject):
                 layer.alpha = info['alpha']
                 layer.name = info['name']
                 self.layers.append(layer)
+                layer.updated.connect(self.layer_updated)
 
     def move_layer(self, layer, index):
         current_index = self.layers.index(layer)
@@ -67,3 +69,5 @@ class DrawDocument(QtCore.QObject):
             self.layers.insert(index, layer)
             self.layer_order_changed.emit(self)
 
+    def layer_updated(self, layer):
+        self.document_changed.emit(self)

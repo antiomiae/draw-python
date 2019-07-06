@@ -52,6 +52,15 @@ class DrawWindow(QtWidgets.QMdiSubWindow):
 
         self.render_document()
 
+    @property
+    def document(self):
+        return self._document
+
+    @document.setter
+    def document(self, document):
+        self._document = document
+        document.document_changed.connect(self.render_document)
+
     def on_canvas_redraw(self, canvas):
         if self.show_grid:
             CanvasGrid.draw(canvas, self.canvas_size, 8, self.canvas_scale())

@@ -5,6 +5,9 @@
     <file>icons/palette_icons_enlarge.png</file>
     <file>icons/palette_icons_shrink.png</file>
 
+    <file>icons/layer_icons_eye_open.png</file>
+    <file>icons/layer_icons_eye_closed.png</file>
+
     <file>textures/bg.png</file>
 </qresource>
 </RCC>

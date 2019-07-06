@@ -27,28 +27,18 @@ class PaletteWidget(QtWidgets.QWidget):
         self.layout().addWidget(self.scroll_area)
 
         self.item_container = QtWidgets.QWidget()
-        #self.item_container.setMinimumSize(24, 24)
         self.item_container.setBackgroundRole(QtGui.QPalette.Window)
 
         self.scroll_area.setWidget(self.item_container)
 
-        # l = QtWidgets.QLabel()
-        # l.setPixmap(QtGui.QPixmap.fromImage(QtGui.QImage('icons/gloomp.png')))
-        # self.scroll_area.setWidget(l)
-
-        #self.scroll_area.setAlignment(QtCore.Qt.AlignLeft | QtCore.Qt.AlignTop)
-        #self.layout().addWidget(self.item_container)
-
         item_grid = QtWidgets.QGridLayout()
         item_grid.setSpacing(0)
-        #item_grid.setContentsMargins(0, 0, 0, 0)
         self.item_container.setLayout(item_grid)
         self.scroll_area.setFrameStyle(0)
         self.scroll_area.setHorizontalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOff)
         self.scroll_area.setVerticalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOff)
 
         self.setup_size_policies()
-
         self.restore_settings()
 
     def setup_size_policies(self):
