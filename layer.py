@@ -68,6 +68,7 @@ class LayerPanel(QWidget):
         enlarge_action = self.toolbar.addAction(enlarge_icon, 'enlarge palette', self.handle_enlarge)
         delete_action = self.toolbar.addAction(delete_icon, 'delete', self.handle_delete)
 
+
     def handle_add(self):
         pass
 
@@ -199,13 +200,14 @@ class LayerListItem(QFrame):
         self._visibility_button.setIconSize(QSize(16, 16))
         self.layout().addWidget(self._visibility_button)
 
-        self._layer_name_label = QLabel()
-        self.layout().addWidget(self._layer_name_label, Qt.AlignCenter)
+        self._name_text = TextEdit()
+        self._name_text.setReadOnly(True)
+        self.layout().addWidget(self._name_text, Qt.AlignCenter)
 
     def set_layer(self, layer):
         self.layer = layer
         self._layer_view_label.set_image(self.layer.image)
-        self._layer_name_label.setText(self.layer.name)
+        self._name_text.setText(self.layer.name)
         self.update_visibility_button()
         self.updateGeometry()
 
@@ -258,3 +260,25 @@ class LayerImageView(QWidget):
         painter = QPainter(self)
         painter.drawImage(self.contentsRect(), self._image)
         painter.end()
+
+class TextEdit(QLineEdit):
+    def __init__(self):
+        super().__init__()
+        self.setFrame(0)
+        self.setReadOnly(True)
+        self.setStyleSheet('''
+        QLineEdit::read-only { background: transparent; }
+        ''')
+
+        self.editingFinished.connect(self.handle_return)
+
+    def mouseDoubleClickEvent(self, event):
+        super().mouseDoubleClickEvent(event)
+        if self.isReadOnly():
+            self.setReadOnly(False)
+            self.grabKeyboard()
+            self.selectAll()
+
+    def handle_return(self):
+        self.setReadOnly(True)
+        self.deselect()

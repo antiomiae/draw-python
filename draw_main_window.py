@@ -72,7 +72,7 @@ class DrawMainWindow(QtWidgets.QMainWindow):
 
         self.reload_windows()
 
-        sys.stdout = Logger(self)
+        #sys.stdout = Logger(self)
 
     def reload_windows(self):
         settings = QtCore.QSettings()
