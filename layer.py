@@ -172,14 +172,14 @@ class LayerListItem(QFrame):
     def __init__(self, *args):
         super().__init__(*args)
 
-        self.setStyleSheet(self.__stylesheet)
-        self.setProperty('current', False)
         self.layer = None
         self._item_size = None
         self.current = False
         self.setContentsMargins(0, 0, 0, 0)
         self.setBackgroundRole(QPalette.Window)
         self.setSizePolicy(QSizePolicy.Minimum, QSizePolicy.Fixed)
+        self.setStyleSheet(self.__stylesheet)
+        self.setProperty('current', False)
 
         self.setFocusPolicy(Qt.ClickFocus)
 
@@ -201,7 +201,7 @@ class LayerListItem(QFrame):
         self.layout().addWidget(self._visibility_button)
 
         self._name_text = TextEdit()
-        self._name_text.setReadOnly(True)
+        self._name_text.editingFinished.connect(self.on_edit_layer_name)
         self.layout().addWidget(self._name_text, Qt.AlignCenter)
 
     def set_layer(self, layer):
@@ -238,6 +238,13 @@ class LayerListItem(QFrame):
         else:
             self._visibility_button.setIcon(QIcon(':/icons/layer_icons_eye_closed'))
 
+    def on_edit_layer_name(self):
+        new_name = self._name_text.text()
+
+        if new_name != '':
+            self.layer.name = new_name
+            self.layer.propagate_changes()
+
 
 class LayerImageView(QWidget):
     def __init__(self, *args):
@@ -261,6 +268,7 @@ class LayerImageView(QWidget):
         painter.drawImage(self.contentsRect(), self._image)
         painter.end()
 
+
 class TextEdit(QLineEdit):
     def __init__(self):
         super().__init__()
@@ -270,7 +278,7 @@ class TextEdit(QLineEdit):
         QLineEdit::read-only { background: transparent; }
         ''')
 
-        self.editingFinished.connect(self.handle_return)
+        self.editingFinished.connect(self.on_editing_finished)
 
     def mouseDoubleClickEvent(self, event):
         super().mouseDoubleClickEvent(event)
@@ -279,6 +287,6 @@ class TextEdit(QLineEdit):
             self.grabKeyboard()
             self.selectAll()
 
-    def handle_return(self):
+    def on_editing_finished(self):
         self.setReadOnly(True)
         self.deselect()
