@@ -8,15 +8,22 @@ from draw_document import DrawDocument
 
 
 class PaletteWidget(QtWidgets.QWidget):
+    __style_sheet = """
+    QToolButton {
+      qproperty-autoRaise: false
+    }
+    """
+
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-
 
         self.palette = []
         self._width = 10
         self._height = 10
         self._item_size = QtCore.QSize(10, 10)
         self.toolbar = None
+
+        self.setStyleSheet(self.__style_sheet)
 
         self.setLayout(QtWidgets.QVBoxLayout())
         self.layout().setContentsMargins(0, 0, 0, 0)
@@ -62,6 +69,8 @@ class PaletteWidget(QtWidgets.QWidget):
         shrink_action = self.toolbar.addAction(shrink_icon, 'shrink palette', self.handle_shrink)
         enlarge_action = self.toolbar.addAction(enlarge_icon, 'enlarge palette', self.handle_enlarge)
         delete_action = self.toolbar.addAction(delete_icon, 'delete', self.handle_delete)
+
+        self.toolbar.widgetForAction(add_action).setAutoRaise(True)
 
     def save_settings(self):
         settings = QtCore.QSettings()

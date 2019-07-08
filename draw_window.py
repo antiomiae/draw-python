@@ -13,18 +13,22 @@ class DrawWindow(QtWidgets.QMdiSubWindow):
     MAX_ZOOM_LEVEL = 12
     MIN_ZOOM_LEVEL = -3
 
+    __style_sheet = """
+    DrawWindow { 
+        selection-background-color: #888; 
+        selection-color: black;
+        color: #777;
+        outline-color: red;
+        text-decoration: none;
+        alternate-background-color: yellow;
+    }
+    """
+
     def __init__(self, document = None):
         super().__init__()
 
         self.setAttribute(QtCore.Qt.WA_DeleteOnClose)
-        self.setStyleSheet('DrawWindow { '
-                           'selection-background-color: blue; '
-                           'selection-color: black;'
-                           'color: green;'
-                           'outline-color: red;'
-                           'text-decoration: none;'
-                           'alternate-background-color: yellow'
-                           '}')
+        self.setStyleSheet(self.__style_sheet)
 
         self.document = document or DrawDocument()
 

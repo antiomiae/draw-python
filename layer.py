@@ -4,6 +4,12 @@ from PySide2.QtCore import *
 
 
 class LayerPanel(QWidget):
+    __style_sheet = """
+    QToolButton {
+      qproperty-autoRaise: false;
+      background: #bbb;
+    }
+    """
     def __init__(self, *args):
         print('init')
         super().__init__(*args)
@@ -12,6 +18,8 @@ class LayerPanel(QWidget):
         self._toolbar = None
         self.setLayout(QVBoxLayout())
         self.layout().setContentsMargins(0, 0, 0, 0)
+
+        self.setStyleSheet(self.__style_sheet)
 
         self._layer_list = LayerList()
         self.layout().addWidget(self._layer_list)
@@ -180,10 +188,10 @@ class LayerListItem(QFrame):
         self.setSizePolicy(QSizePolicy.Minimum, QSizePolicy.Fixed)
         self.setStyleSheet(self.__stylesheet)
         self.setProperty('current', False)
-
         self.setFocusPolicy(Qt.ClickFocus)
 
         self.setLayout(QHBoxLayout())
+        self.layout().setContentsMargins(0, 0, 0, 0)
 
         self._layer_view_label = LayerImageView()
         self.layout().addWidget(self._layer_view_label)
