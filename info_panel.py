@@ -9,8 +9,11 @@ class InfoPanel(QWidget):
         self.text_edit.setReadOnly(True)
         self._text = ''
         self.setLayout(QVBoxLayout())
+        self.layout().setContentsMargins(0, 0, 0, 0)
         self.layout().addWidget(self.text_edit)
         self.layout().insertStretch(-1, 1)
+
+        self.text_edit.setStyleSheet('QTextEdit { background: #444; color: #ccc }')
 
     def write_text(self, s: str):
         self._text += s.rstrip() + '\n'

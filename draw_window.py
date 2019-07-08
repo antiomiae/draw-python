@@ -10,19 +10,25 @@ from draw_document import DrawDocument
 
 
 class DrawWindow(QtWidgets.QMdiSubWindow):
-    MAX_ZOOM_LEVEL = 7
+    MAX_ZOOM_LEVEL = 12
     MIN_ZOOM_LEVEL = -3
 
     def __init__(self, document = None):
         super().__init__()
 
         self.setAttribute(QtCore.Qt.WA_DeleteOnClose)
-        self.setStyle(QtWidgets.QStyleFactory.create('fusion'))
+        self.setStyleSheet('DrawWindow { '
+                           'selection-background-color: blue; '
+                           'selection-color: black;'
+                           'color: green;'
+                           'outline-color: red;'
+                           'text-decoration: none;'
+                           'alternate-background-color: yellow'
+                           '}')
 
         self.document = document or DrawDocument()
 
         self.setWindowFilePath(self.document.file_path)
-        self.setWindowTitle(self.document.name)
 
         self.canvas_size = self.document.size
         self._zoom_level = 0
@@ -51,6 +57,7 @@ class DrawWindow(QtWidgets.QMdiSubWindow):
         self.setup_menus()
 
         self.render_document()
+        self.update_title_bar_text()
 
     @property
     def document(self):
@@ -83,9 +90,13 @@ class DrawWindow(QtWidgets.QMdiSubWindow):
     @zoom_level.setter
     def zoom_level(self, zoom):
         self._zoom_level = max(min(zoom, self.MAX_ZOOM_LEVEL), self.MIN_ZOOM_LEVEL)
+        self.update_title_bar_text()
+
+    def update_title_bar_text(self):
+        self.setWindowTitle('{} ({:.2f}x)'.format(self.document.name, self.canvas_scale()))
 
     def canvas_scale(self):
-        return math.pow(2, self.zoom_level)
+        return math.pow(2, self.zoom_level)/self.devicePixelRatioF()
 
     def canvas_transform(self) -> QtGui.QTransform:
         scale = self.canvas_scale()
@@ -94,6 +105,7 @@ class DrawWindow(QtWidgets.QMdiSubWindow):
     def update_canvas(self):
         new_size = self.canvas_size * self.canvas_scale()
         self.canvas.setFixedSize(new_size)
+        self.canvas.canvas_scale = self.canvas_scale()
 
     def _zoom(self, zoom):
         viewport = self.scroll_area.viewport()
@@ -131,16 +143,6 @@ class DrawWindow(QtWidgets.QMdiSubWindow):
 
     def setup_menus(self):
         pass
-        # toolbar = self.widget().addToolBar('bar')
-        #
-        # toolbar.addAction('grid size')
-        #
-        # action = toolbar.addAction('Show grid')
-        # action.toggled.connect(self.toggle_grid)
-        # action.setCheckable(True)
-        # action.setChecked(self.show_grid)
-        #
-        # grid_size_input = QtWidgets.QSpinBox()
 
 
 class CanvasLabel(QtWidgets.QLabel):
@@ -148,6 +150,11 @@ class CanvasLabel(QtWidgets.QLabel):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+
+        self.setAttribute(QtCore.Qt.WA_NoSystemBackground)
+
+        self.canvas_scale = QtCore.QSizeF(1, 1)
+
         self.setup_overlay()
         self.setBackgroundRole(QtGui.QPalette.Light)
         self.setScaledContents(True)
@@ -172,22 +179,20 @@ class CanvasLabel(QtWidgets.QLabel):
         self.overlay_image.fill(QtGui.QColor(0, 0, 0, 0))
 
     def paintEvent(self, event):
-        painter = QtGui.QPainter(self)
-        self.drawFrame(painter)
-        cr = self.contentsRect()
+        image_rect = QtCore.QRectF(QtCore.QPointF(0, 0), QtCore.QSizeF(self.pixmap().size())*self.canvas_scale)
 
         bg_texture = QtGui.QPixmap(':/textures/bg.png')
         bg_texture.setDevicePixelRatio(self.devicePixelRatioF())
-        bg_brush = QtGui.QBrush(bg_texture.scaled(bg_texture.size()*2))
+        bg_brush = QtGui.QBrush(bg_texture)
 
-        painter.fillRect(cr, bg_brush)
-
-        painter.drawPixmap(cr, self.pixmap())
-        painter.drawImage(cr, self.overlay_image)
-
-        painter.end()
+        painter = QtGui.QPainter(self)
+        painter.fillRect(self.contentsRect(), QtGui.QColor(0, 0, 0, 0))
+        painter.fillRect(image_rect, bg_brush)
+        painter.drawPixmap(image_rect, self.pixmap(), QtCore.QRectF(self.pixmap().rect()))
+        painter.drawImage(image_rect, self.overlay_image)
 
         self.redraw.emit(self)
+        painter.end()
 
 
 class CanvasGrid:

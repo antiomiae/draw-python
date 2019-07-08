@@ -8,6 +8,11 @@
     <file>icons/layer_icons_eye_open.png</file>
     <file>icons/layer_icons_eye_closed.png</file>
 
+    <file>icons/draw_icons_pencil.png</file>
+    <file>icons/draw_icons_eraser.png</file>
+    <file>icons/draw_icons_selection.png</file>
+    <file>icons/draw_icons_bucket.png</file>
+
     <file>textures/bg.png</file>
 </qresource>
 </RCC>

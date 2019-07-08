@@ -19,6 +19,7 @@ class PaletteWidget(QtWidgets.QWidget):
         self.toolbar = None
 
         self.setLayout(QtWidgets.QVBoxLayout())
+        self.layout().setContentsMargins(0, 0, 0, 0)
 
         self.setup_toolbar()
 
@@ -34,6 +35,7 @@ class PaletteWidget(QtWidgets.QWidget):
         item_grid = QtWidgets.QGridLayout()
         item_grid.setSpacing(0)
         self.item_container.setLayout(item_grid)
+        self.item_container.layout().setContentsMargins(0, 0, 0, 0)
         self.scroll_area.setFrameStyle(0)
         self.scroll_area.setHorizontalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOff)
         self.scroll_area.setVerticalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOff)

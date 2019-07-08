@@ -6,10 +6,8 @@ from PySide2 import QtCore
 
 from draw_main_window import DrawMainWindow
 
-class MainWindow(QMainWindow):
-    def __init__(self):
-        QMainWindow.__init__(self)
-
+import qtmodern.styles
+import qtmodern.windows
 
 if __name__ == "__main__":
     QApplication.setAttribute(Qt.AA_EnableHighDpiScaling)
@@ -20,19 +18,24 @@ if __name__ == "__main__":
     app = QApplication([])
 
 
-    style_name = 'fusion'
+    # style_name = 'fusion'
+    # if app.platformName() == 'windows':
+    #     style_name = 'windows'
+    # elif app.platformName() == 'cocoa':
+    #     style_name = 'macos'
 
-    if app.platformName() == 'windows':
-        style_name = 'windows'
-    elif app.platformName() == 'cocoa':
-        style_name = 'macos'
-
-    app.setStyle(QStyleFactory.create(style_name))
+    # app.setStyle(QStyleFactory.create(style_name))
 
     QApplication.setOrganizationName('Kevin Ward')
     QApplication.setApplicationName('draw')
 
-    l = DrawMainWindow()
-    l.show()
+    qtmodern.styles.dark(app)
+
+    main_window = DrawMainWindow()
+    #main_window.show()
+
+    modern_window = qtmodern.windows.ModernWindow(main_window)
+    #
+    modern_window.show()
 
     sys.exit(app.exec_())

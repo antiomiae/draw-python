@@ -13,6 +13,7 @@ from draw_window import DrawWindow
 from palette import PaletteWidget
 from info_panel import InfoPanel
 from layer import LayerPanel
+from drawing_tools_widget import DrawingToolsWidget
 
 
 class Logger:
@@ -31,6 +32,12 @@ class Logger:
 class DrawMainWindow(QtWidgets.QMainWindow):
     document_changed = QtCore.Signal(DrawDocument)
 
+    __style_sheet = """
+    QMdiSubWindow {
+      text-shadow: unset;
+    }
+    """
+
     def write_log(self, message):
         if self.info_panel:
             self.info_panel.write_text(message)
@@ -38,13 +45,12 @@ class DrawMainWindow(QtWidgets.QMainWindow):
     def __init__(self):
         super().__init__()
 
-        self._info_bar = None
+        self.setStyleSheet(self.__style_sheet)
 
-        #self.setDocumentMode(False)
+        self._info_bar = None
 
         self.mdi_area = QtWidgets.QMdiArea()
         self.mdi_area.setFrameStyle(0)
-        #self.mdi_area.setStyle(QtWidgets.QStyleFactory.create('fusion'))
         self.mdi_area.setBackground(QtGui.QBrush(QtGui.QColor('#444')))
         self.setCentralWidget(self.mdi_area)
 
@@ -58,6 +64,7 @@ class DrawMainWindow(QtWidgets.QMainWindow):
         self.setup_menus()
         self.setup_docks()
         self.setup_toolbars()
+        self.setStatusBar(QtWidgets.QStatusBar())
 
         self.mdi_area.subWindowActivated.connect(self.handle_window_activated)
 
@@ -65,8 +72,7 @@ class DrawMainWindow(QtWidgets.QMainWindow):
 
         self.reload_windows()
 
-        #sys.stdout = Logger(self)
-        print('hi')
+        sys.stdout = Logger(self)
 
     def reload_windows(self):
         settings = QtCore.QSettings()
@@ -145,30 +151,34 @@ class DrawMainWindow(QtWidgets.QMainWindow):
         window_menu.addAction(self._actions['show_all_windows'])
         window_menu.addAction(self._actions['hide_all_windows'])
 
-    def _create_right_dock_widget(self, name):
-        dock = QtWidgets.QDockWidget(name, self)
-        self.addDockWidget(QtCore.Qt.RightDockWidgetArea, dock)
+    def create_dock_widget(self, name, dock_area=QtCore.Qt.RightDockWidgetArea):
+        dock = QtWidgets.QDockWidget()
+        self.addDockWidget(dock_area, dock)
 
         dock.setSizePolicy(QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Fixed)
         dock.setFeatures(QtWidgets.QDockWidget.DockWidgetFloatable | QtWidgets.QDockWidget.DockWidgetMovable)
-        dock.setAllowedAreas(QtCore.Qt.RightDockWidgetArea)
+        dock.setAllowedAreas(dock_area)
 
         return dock
 
     def setup_docks(self):
-        dock = self._create_right_dock_widget('palette')
+        dock = self.create_dock_widget('palette')
         palette_window = PaletteWidget()
         dock.setWidget(palette_window)
         self.document_changed.connect(palette_window.document_changed)
 
-        self.layer_dock = self._create_right_dock_widget('layers')
+        self.layer_dock = self.create_dock_widget('layers')
         layer_panel = LayerPanel()
         self.layer_dock.setWidget(layer_panel)
         layer_panel.register_window(self)
 
-        dock_2 = self._create_right_dock_widget('info')
+        dock_2 = self.create_dock_widget('info')
         self.info_panel = InfoPanel()
         dock_2.setWidget(self.info_panel)
+
+        tool_dock = self.create_dock_widget('drawing tools', QtCore.Qt.LeftDockWidgetArea)
+        self.drawing_tools_widget = DrawingToolsWidget()
+        tool_dock.setWidget(self.drawing_tools_widget)
 
     def setup_toolbars(self):
         self.addToolBar('toolbar')
@@ -212,6 +222,7 @@ class DrawMainWindow(QtWidgets.QMainWindow):
 
     def handle_window_activated(self, window):
         if window:
+            print('DrawMainWindow emitting document_changed')
             self.document_changed.emit(window.document)
 
     def handle_reset_zoom(self):
