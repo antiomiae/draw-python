@@ -32,20 +32,8 @@ class Logger:
 class DrawMainWindow(QtWidgets.QMainWindow):
     document_changed = QtCore.Signal(DrawDocument)
 
-    __style_sheet = """
-    QMdiSubWindow {
-      text-shadow: unset;
-    }
-    """
-
-    def write_log(self, message):
-        if self.info_panel:
-            self.info_panel.write_text(message)
-
     def __init__(self):
         super().__init__()
-
-        self.setStyleSheet(self.__style_sheet)
 
         self._info_bar = None
 
@@ -72,8 +60,6 @@ class DrawMainWindow(QtWidgets.QMainWindow):
 
         self.reload_windows()
 
-        #sys.stdout = Logger(self)
-
     def reload_windows(self):
         settings = QtCore.QSettings()
 
@@ -89,7 +75,11 @@ class DrawMainWindow(QtWidgets.QMainWindow):
 
     def on_about_to_quit(self):
         settings = QtCore.QSettings()
-        open_windows = [window.document.file_path for window in self.mdi_area.subWindowList() if window.document.file_path]
+        open_windows = [
+            window.document.file_path
+            for window in self.mdi_area.subWindowList()
+            if window.document.file_path
+        ]
         settings.setValue('editor/open_windows', open_windows)
         settings.setValue('editor/geometry', self.saveGeometry())
         settings.sync()
@@ -229,3 +219,11 @@ class DrawMainWindow(QtWidgets.QMainWindow):
         w = self.mdi_area.currentSubWindow()
         if w:
             w.reset_zoom()
+
+    def write_log(self, message):
+        if self.info_panel:
+            self.info_panel.write_text(message)
+
+    def resizeEvent(self, event):
+        print('DrawMainWindow resizeEvent', event)
+        return super().resizeEvent(event)

@@ -1,6 +1,6 @@
-from PySide2.QtWidgets import *
-from PySide2.QtGui import *
-from PySide2.QtCore import *
+from Qt.QtWidgets import *
+from Qt.QtGui import *
+from Qt.QtCore import *
 
 
 class LayerPanel(QWidget):
@@ -36,10 +36,12 @@ class LayerPanel(QWidget):
     def save_settings(self):
         settings = QSettings()
         settings.setValue('editor/layer_panel/geometry', self.saveGeometry())
+        settings.sync()
 
     def register_window(self, main_window):
         print('register_window')
         main_window.document_changed.connect(self.document_changed)
+        main_window.destroyed.connect(self.save_settings)
 
     def document_changed(self, document):
         print('LayerPanel document_changed')

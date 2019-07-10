@@ -10,8 +10,8 @@ cx-freeze = "*"
 PySide2 = "*"
 wheel = "*"
 cx-freeze = "*"
-qtmodern = "*"
-master = {editable = true,git = "https://github.com/gmarull/qtmodern.git"}
+qtmodern = {editable = true,version = "*"}
+qt-py = "*"
 
 [requires]
 python_version = "3.6"

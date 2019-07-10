@@ -1,7 +1,7 @@
 {
     "_meta": {
         "hash": {
-            "sha256": "3f23b9e364b5e75ead63a6fe5b41323f86fea667065a5736efa9009611770d92"
+            "sha256": "03aafb65e3917d2c9f4f3af8e9d16a010b72c302b7b3a7b8785b4d73b43ea660"
         },
         "pipfile-spec": 6,
         "requires": {
@@ -29,11 +29,6 @@
             "index": "pypi",
             "version": "==5.1.1"
         },
-        "master": {
-            "editable": true,
-            "git": "https://github.com/gmarull/qtmodern.git",
-            "ref": "7e4b6587f5def8e58b777ff5e4657cc31c532627"
-        },
         "pyside2": {
             "hashes": [
                 "sha256:11a3646a16e5fdfd67b3f08d097bef7c93fc523da313453bd6839b8d4cce85d7",
@@ -45,6 +40,20 @@
             ],
             "index": "pypi",
             "version": "==5.13.0"
+        },
+        "qt-py": {
+            "hashes": [
+                "sha256:4b972258b25b75ef6eb9cb2b11830fc12c5485f95f92647e033639222bcb8417"
+            ],
+            "index": "pypi",
+            "version": "==1.2.1"
+        },
+        "qtmodern": {
+            "hashes": [
+                "sha256:a2acb8bf01ca3cd7edf4d9eca25a5f29cee3ddd44fc2a3b2e5511d1bc5c37932"
+            ],
+            "index": "pypi",
+            "version": "==0.1.4"
         },
         "qtpy": {
             "hashes": [
