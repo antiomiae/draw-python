@@ -112,11 +112,11 @@ class DrawWindow(QtWidgets.QMdiSubWindow):
         self.canvas.canvas_scale = self.canvas_scale()
 
     def _zoom(self, zoom):
-        viewport = self.scroll_area.viewport()
-        cr = viewport.contentsRect()
+        print('DrawWindow _zoom')
+        cr = self.scroll_area.contentsRect()
         cr_center = cr.center()
 
-        global_center = viewport.mapToGlobal(cr_center)
+        global_center = self.scroll_area.mapToGlobal(cr_center)
         p = self.canvas.mapFromGlobal(global_center)
         inverse_canvas_transform = self.canvas_transform().inverted()[0]
         pixel_position = inverse_canvas_transform.map(p)
@@ -133,10 +133,10 @@ class DrawWindow(QtWidgets.QMdiSubWindow):
         v_scroll_bar.setValue(float(pixel_position.y())/self.canvas_size.height()*v_scroll_bar.maximum())
 
     def zoom_in(self):
-        self._zoom(self.zoom_level+0.5)
+        self._zoom(self.zoom_level+0.25)
 
     def zoom_out(self):
-        self._zoom(self.zoom_level-0.5)
+        self._zoom(self.zoom_level-0.25)
 
     def reset_zoom(self):
         self._zoom(0)
