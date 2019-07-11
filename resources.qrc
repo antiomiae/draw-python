@@ -1,5 +1,7 @@
 <!DOCTYPE RCC><RCC version="1.0">
 <qresource>
+    <file>icons/emblem.png</file>
+
     <file>icons/palette_icons_add.png</file>
     <file>icons/palette_icons_delete.png</file>
     <file>icons/palette_icons_enlarge.png</file>

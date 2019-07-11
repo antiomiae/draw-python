@@ -35,6 +35,8 @@ class DrawMainWindow(QtWidgets.QMainWindow):
     def __init__(self):
         super().__init__()
 
+        self.setWindowIcon(QtGui.QIcon(':/icons/emblem.png'))
+
         self._info_bar = None
 
         self.mdi_area = QtWidgets.QMdiArea()

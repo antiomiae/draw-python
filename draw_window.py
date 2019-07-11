@@ -68,6 +68,8 @@ class DrawWindow(QtWidgets.QMdiSubWindow):
 
         self.render_document()
         self.update_title_bar_text()
+        self.setWindowIcon(QtGui.QIcon(':/icons/emblem'))
+
 
 
     @property
