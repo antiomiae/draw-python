@@ -55,6 +55,12 @@ class DrawWindow(QtWidgets.QMdiSubWindow):
         self.canvas = CanvasLabel()
         self.scroll_area.setWidget(self.canvas)
         self.update_canvas()
+        canvas_size = self.canvas.size()
+        #self.setMinimumSize(canvas_size)
+        self.scroll_area.resize(canvas_size)
+        #self.resize(canvas_size)
+        size_hint = self.sizeHint()
+        self.resize(self.sizeHint())
 
         self.canvas.redraw.connect(self.on_canvas_redraw)
 
@@ -62,6 +68,7 @@ class DrawWindow(QtWidgets.QMdiSubWindow):
 
         self.render_document()
         self.update_title_bar_text()
+
 
     @property
     def document(self):
@@ -97,7 +104,7 @@ class DrawWindow(QtWidgets.QMdiSubWindow):
         self.update_title_bar_text()
 
     def update_title_bar_text(self):
-        self.setWindowTitle('{} ({:.2f}x)'.format(self.document.name, self.canvas_scale()))
+        self.setWindowTitle('{} ({:.2f}x)'.format(self.document.name, self.canvas_scale()*self.devicePixelRatioF()))
 
     def canvas_scale(self):
         return math.pow(2, self.zoom_level)/self.devicePixelRatioF()
@@ -109,28 +116,36 @@ class DrawWindow(QtWidgets.QMdiSubWindow):
     def update_canvas(self):
         new_size = self.canvas_size * self.canvas_scale()
         self.canvas.setFixedSize(new_size)
+        self.canvas.resize(new_size)
         self.canvas.canvas_scale = self.canvas_scale()
 
     def _zoom(self, zoom):
         print('DrawWindow _zoom')
-        cr = self.scroll_area.contentsRect()
+        cr = self.scroll_area.viewport().contentsRect()
+        print('cr', cr)
         cr_center = cr.center()
+        print('cr_center', cr_center)
 
-        global_center = self.scroll_area.mapToGlobal(cr_center)
+        global_center = self.scroll_area.viewport().mapToGlobal(cr_center)
+        print('global_center', global_center)
         p = self.canvas.mapFromGlobal(global_center)
         inverse_canvas_transform = self.canvas_transform().inverted()[0]
         pixel_position = inverse_canvas_transform.map(p)
+        print('pixel_position', pixel_position)
 
         self.zoom_level = zoom
         self.update_canvas()
 
         n = self.canvas_transform().map(pixel_position)
+        print('n', n)
 
         h_scroll_bar = self.scroll_area.horizontalScrollBar()
-        h_scroll_bar.setValue(float(pixel_position.x())/self.canvas_size.width()*h_scroll_bar.maximum())
+        #h_scroll_bar.setValue(float(pixel_position.x())/self.canvas_size.width()*h_scroll_bar.maximum())
+        h_scroll_bar.setValue(n.x())
 
         v_scroll_bar = self.scroll_area.verticalScrollBar()
-        v_scroll_bar.setValue(float(pixel_position.y())/self.canvas_size.height()*v_scroll_bar.maximum())
+        #v_scroll_bar.setValue(float(pixel_position.y())/self.canvas_size.height()*v_scroll_bar.maximum())
+        h_scroll_bar.setValue(n.y())
 
     def zoom_in(self):
         self._zoom(self.zoom_level+0.25)
@@ -169,7 +184,6 @@ class CanvasLabel(QtWidgets.QLabel):
             self.setup_overlay()
 
     def setup_overlay(self):
-        size = None
         if self.pixmap():
             size = QtCore.QSize(self.pixmap().width(), self.pixmap().height())
         else:
@@ -185,6 +199,8 @@ class CanvasLabel(QtWidgets.QLabel):
     def paintEvent(self, event):
         image_rect = QtCore.QRectF(QtCore.QPointF(0, 0), QtCore.QSizeF(self.pixmap().size())*self.canvas_scale)
 
+        self_rect = self.contentsRect()
+
         bg_texture = QtGui.QPixmap(':/textures/bg.png')
         bg_texture.setDevicePixelRatio(self.devicePixelRatioF())
         bg_brush = QtGui.QBrush(bg_texture)
@@ -193,7 +209,7 @@ class CanvasLabel(QtWidgets.QLabel):
         painter.fillRect(self.contentsRect(), QtGui.QColor(0, 0, 0, 0))
         painter.fillRect(image_rect, bg_brush)
         painter.drawPixmap(image_rect, self.pixmap(), QtCore.QRectF(self.pixmap().rect()))
-        painter.drawImage(image_rect, self.overlay_image)
+        #painter.drawImage(image_rect, self.overlay_image)
 
         self.redraw.emit(self)
         painter.end()
