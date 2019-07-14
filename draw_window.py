@@ -70,8 +70,6 @@ class DrawWindow(QtWidgets.QMdiSubWindow):
         self.update_title_bar_text()
         self.setWindowIcon(QtGui.QIcon(':/icons/emblem'))
 
-
-
     @property
     def document(self):
         return self._document
@@ -123,16 +121,16 @@ class DrawWindow(QtWidgets.QMdiSubWindow):
 
     def _zoom(self, zoom):
         print('DrawWindow _zoom')
-        cr = self.scroll_area.viewport().contentsRect()
+        cr = self.scroll_area.contentsRect()
         print('cr', cr)
         cr_center = cr.center()
         print('cr_center', cr_center)
 
-        global_center = self.scroll_area.viewport().mapToGlobal(cr_center)
+        global_center = self.scroll_area.mapToGlobal(cr_center)
         print('global_center', global_center)
         p = self.canvas.mapFromGlobal(global_center)
         inverse_canvas_transform = self.canvas_transform().inverted()[0]
-        pixel_position = inverse_canvas_transform.map(p)
+        pixel_position = inverse_canvas_transform.map(QtCore.QPointF(p))
         print('pixel_position', pixel_position)
 
         self.zoom_level = zoom
@@ -141,13 +139,15 @@ class DrawWindow(QtWidgets.QMdiSubWindow):
         n = self.canvas_transform().map(pixel_position)
         print('n', n)
 
-        h_scroll_bar = self.scroll_area.horizontalScrollBar()
-        #h_scroll_bar.setValue(float(pixel_position.x())/self.canvas_size.width()*h_scroll_bar.maximum())
-        h_scroll_bar.setValue(n.x())
+        # h_scroll_bar = self.scroll_area.horizontalScrollBar()
+        # h_scroll_bar.setValue(float(pixel_position.x())/self.canvas_size.width()*h_scroll_bar.maximum())
+        # #h_scroll_bar.setValue(n.x())
+        #
+        # v_scroll_bar = self.scroll_area.verticalScrollBar()
+        # v_scroll_bar.setValue(float(pixel_position.y())/self.canvas_size.height()*v_scroll_bar.maximum())
+        #v_scroll_bar.setValue(n.y())
 
-        v_scroll_bar = self.scroll_area.verticalScrollBar()
-        #v_scroll_bar.setValue(float(pixel_position.y())/self.canvas_size.height()*v_scroll_bar.maximum())
-        h_scroll_bar.setValue(n.y())
+        self.scroll_area.ensureVisible(n.x(), n.y(), self.scroll_area.width()/2, self.scroll_area.height()/2)
 
     def zoom_in(self):
         self._zoom(self.zoom_level+0.25)
