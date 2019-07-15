@@ -9,7 +9,7 @@ from dataclasses import dataclass
 
 import math
 
-import palette
+import palette_panel
 
 class ImageLabel(QtWidgets.QLabel):
     def __init__(self, *args, **kwargs):
@@ -132,7 +132,7 @@ class LayerView(QtWidgets.QMainWindow):
     def setup_docks(self):
         dock = QtWidgets.QDockWidget('palette', self)
 
-        self.palette_control = palette.PaletteWidget()
+        self.palette_control = palette_panel.PalettePanel()
         self.palette_control.set_palette([QtCore.Qt.GlobalColor.white, QtCore.Qt.GlobalColor.black])
         dock.setWidget(self.palette_control)
         dock.setSizePolicy(QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Minimum)

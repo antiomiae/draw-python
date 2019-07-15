@@ -175,10 +175,14 @@ class DocumentRenderer:
         for layer in reversed(self.document.layers):
             if not layer.hidden:
                 self.set_blend_mode(layer)
+                self.set_opacity(layer)
                 self.painter.drawImage(QtCore.QPoint(0, 0), layer.image)
         self.painter.end()
 
         return image
+
+    def set_opacity(self, layer):
+        self.painter.setOpacity(layer.alpha/255)
 
     def set_blend_mode(self, layer):
         if not layer.blend_mode or layer.blend_mode == 'normal':

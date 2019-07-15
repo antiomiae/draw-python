@@ -7,7 +7,7 @@ from PySide2 import QtCore
 from draw_document import DrawDocument
 
 
-class PaletteWidget(QtWidgets.QWidget):
+class PalettePanel(QtWidgets.QWidget):
     __style_sheet = """
     QToolButton {
       qproperty-autoRaise: false
@@ -137,8 +137,6 @@ class PaletteItem(QtWidgets.QWidget):
     def __init__(self, *args, color=QtCore.Qt.GlobalColor.white, size=QtCore.QSize(10, 10)):
         super().__init__(*args)
         self._color = color
-        #self.setMinimumSize(QtCore.QSize(10, 10))
-        #self.setMaximumSize(QtCore.QSize(10, 10))
         self._size = size
         self.setSizePolicy(QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Minimum)
         self.setFixedSize(self._size)

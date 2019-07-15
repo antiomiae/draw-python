@@ -10,9 +10,9 @@ import resources
 from draw_document import DrawDocument
 from draw_window import DrawWindow
 
-from palette import PaletteWidget
+from palette_panel import PalettePanel
 from info_panel import InfoPanel
-from layer import LayerPanel
+from layer_panel import LayerPanel
 from drawing_tools_widget import DrawingToolsWidget
 from current_colors import CurrentColorsWidget
 
@@ -156,7 +156,7 @@ class DrawMainWindow(QtWidgets.QMainWindow):
 
     def setup_docks(self):
         dock = self.create_dock_widget('palette')
-        palette_window = PaletteWidget()
+        palette_window = PalettePanel()
         dock.setWidget(palette_window)
         self.document_changed.connect(palette_window.document_changed)
 
