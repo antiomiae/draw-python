@@ -14,6 +14,7 @@ from palette import PaletteWidget
 from info_panel import InfoPanel
 from layer import LayerPanel
 from drawing_tools_widget import DrawingToolsWidget
+from current_colors import CurrentColorsWidget
 
 
 class Logger:
@@ -173,7 +174,10 @@ class DrawMainWindow(QtWidgets.QMainWindow):
         tool_dock.setWidget(self.drawing_tools_widget)
 
     def setup_toolbars(self):
-        self.addToolBar('toolbar')
+        self.top_toolbar = self.addToolBar('toolbar')
+        current_color = CurrentColorsWidget()
+        current_color.setFixedSize(QtCore.QSize(32, 32))
+        self.top_toolbar.addWidget(current_color)
 
     def handle_open_file(self, checked):
         settings = QtCore.QSettings()

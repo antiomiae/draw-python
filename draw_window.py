@@ -120,34 +120,20 @@ class DrawWindow(QtWidgets.QMdiSubWindow):
         self.canvas.canvas_scale = self.canvas_scale()
 
     def _zoom(self, zoom):
-        print('DrawWindow _zoom')
-        cr = self.scroll_area.contentsRect()
-        print('cr', cr)
-        cr_center = cr.center()
-        print('cr_center', cr_center)
-
+        cr_center = self.scroll_area.contentsRect().center()
         global_center = self.scroll_area.mapToGlobal(cr_center)
-        print('global_center', global_center)
-        p = self.canvas.mapFromGlobal(global_center)
+        canvas_position = self.canvas.mapFromGlobal(global_center)
         inverse_canvas_transform = self.canvas_transform().inverted()[0]
-        pixel_position = inverse_canvas_transform.map(QtCore.QPointF(p))
-        print('pixel_position', pixel_position)
+        pixel_position = inverse_canvas_transform.map(QtCore.QPointF(canvas_position))
 
         self.zoom_level = zoom
         self.update_canvas()
 
-        n = self.canvas_transform().map(pixel_position)
-        print('n', n)
+        new_canvas_position = self.canvas_transform().map(pixel_position)
+        self.center_canvas_at(new_canvas_position)
 
-        # h_scroll_bar = self.scroll_area.horizontalScrollBar()
-        # h_scroll_bar.setValue(float(pixel_position.x())/self.canvas_size.width()*h_scroll_bar.maximum())
-        # #h_scroll_bar.setValue(n.x())
-        #
-        # v_scroll_bar = self.scroll_area.verticalScrollBar()
-        # v_scroll_bar.setValue(float(pixel_position.y())/self.canvas_size.height()*v_scroll_bar.maximum())
-        #v_scroll_bar.setValue(n.y())
-
-        self.scroll_area.ensureVisible(n.x(), n.y(), self.scroll_area.width()/2, self.scroll_area.height()/2)
+    def center_canvas_at(self, point):
+        self.scroll_area.ensureVisible(point.x(), point.y(), self.scroll_area.width()/2, self.scroll_area.height()/2)
 
     def zoom_in(self):
         self._zoom(self.zoom_level+0.25)
@@ -208,11 +194,10 @@ class CanvasLabel(QtWidgets.QLabel):
         bg_brush = QtGui.QBrush(bg_texture)
 
         painter = QtGui.QPainter(self)
-        painter.fillRect(self.contentsRect(), QtGui.QColor(0, 0, 0, 0))
+        painter.fillRect(self.contentsRect(), QtGui.QColor(0, 0, 0, 255))
         painter.fillRect(image_rect, bg_brush)
         painter.drawPixmap(image_rect, self.pixmap(), QtCore.QRectF(self.pixmap().rect()))
         #painter.drawImage(image_rect, self.overlay_image)
-
         self.redraw.emit(self)
         painter.end()
 
