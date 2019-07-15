@@ -34,6 +34,7 @@ class DrawDocument(QtCore.QObject):
         self.layers = []
         self.name = None
         self.palette = []
+        self.palette_width = 12
 
         if file_path:
             self.load_file(self.file_path)
@@ -45,6 +46,7 @@ class DrawDocument(QtCore.QObject):
         canvas_size = QtCore.QSize(draw_file.width, draw_file.height)
         self.size = canvas_size
         self.palette = draw_file.palette
+        self.palette_width = draw_file.palette_width
 
         self.layers.clear()
 

@@ -101,8 +101,9 @@ class PaletteWidget(QtWidgets.QWidget):
             pass
             # show color dialog
 
-    def set_palette(self, palette):
-        self.palette = palette
+    def set_palette(self, document):
+        self.palette = document.palette
+        self._width = document.palette_width
         self.update_items()
 
     def update_items(self):
@@ -129,7 +130,7 @@ class PaletteWidget(QtWidgets.QWidget):
     @QtCore.Slot(DrawDocument)
     def document_changed(self, document):
         if document:
-            self.set_palette(document.palette)
+            self.set_palette(document)
 
 
 class PaletteItem(QtWidgets.QWidget):

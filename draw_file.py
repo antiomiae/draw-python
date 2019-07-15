@@ -28,6 +28,7 @@ class DrawFile:
 
         palette_data = doc_data['palette']
         self.palette = [palette_data['colors'][str(i)] for i in range(len(palette_data['colors']))]
+        self.palette_width = palette_data['width']
 
     def ensure_file(self):
         if not self.file:
