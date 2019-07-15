@@ -53,22 +53,16 @@ class DrawWindow(QtWidgets.QMdiSubWindow):
         self.layout().setContentsMargins(0, 0, 0, 0)
 
         self.canvas = CanvasLabel()
+        self.canvas.redraw.connect(self.on_canvas_redraw)
         self.scroll_area.setWidget(self.canvas)
         self.update_canvas()
-        canvas_size = self.canvas.size()
-        #self.setMinimumSize(canvas_size)
-        self.scroll_area.resize(canvas_size)
-        #self.resize(canvas_size)
-        size_hint = self.sizeHint()
-        self.resize(self.sizeHint())
-
-        self.canvas.redraw.connect(self.on_canvas_redraw)
 
         self.setup_menus()
 
         self.render_document()
         self.update_title_bar_text()
         self.setWindowIcon(QtGui.QIcon(':/icons/emblem'))
+        self.resize_contents(self.scroll_area.sizeHint())
 
     @property
     def document(self):
@@ -126,6 +120,29 @@ class DrawWindow(QtWidgets.QMdiSubWindow):
 
     def center_canvas_at(self, point):
         self.scroll_area.ensureVisible(point.x(), point.y(), self.scroll_area.width()/2, self.scroll_area.height()/2)
+
+    def resize_contents(self, size):
+        h = self.title_bar_height()
+        w = self.frame_width()
+        print('title bar height', h)
+        print('frame width', w)
+        self.resize(size + QtCore.QSize(w*2, h))
+
+    def title_bar_height(self):
+        style = self.style()
+        so = QtWidgets.QStyleOptionTitleBar()
+        so.titleBarState = 1
+        so.titleBarFlags = QtCore.Qt.Window
+        height = style.pixelMetric(QtWidgets.QStyle.PM_TitleBarHeight, so, self)
+        return height + 4
+
+    def frame_width(self):
+        style = self.style()
+        so = QtWidgets.QStyleOptionTitleBar()
+        so.titleBarState = 1
+        so.titleBarFlags = QtCore.Qt.Window
+        width = style.pixelMetric(QtWidgets.QStyle.PM_MdiSubWindowFrameWidth, so, self)
+        return width
 
     def zoom_in(self):
         self._zoom(self.zoom_level+0.25)
