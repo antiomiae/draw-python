@@ -9,3 +9,4 @@ wheel = "*"
 cx-freeze = "*"
 qtmodern = {editable = true,version = "*"}
 qt-py = "*"
+setuptools = "*"
