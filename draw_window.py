@@ -84,15 +84,7 @@ class DrawWindow(QtWidgets.QMdiSubWindow):
             CanvasGrid.draw(canvas, self.canvas_size, 8, self.canvas_scale())
 
     def render_document(self):
-        pixmap = QtGui.QPixmap(self.canvas_size)
-        pixmap.fill(QtGui.QColor('transparent'))
-        painter = QtGui.QPainter(pixmap)
-
-        for layer in reversed(self.document.layers):
-            if not layer.hidden:
-                painter.drawImage(QtCore.QPoint(0, 0), layer.image)
-        painter.end()
-        self.canvas.setPixmap(pixmap)
+        self.canvas.setPixmap(QtGui.QPixmap.fromImage(DocumentRenderer(self.document).render()))
 
     @property
     def zoom_level(self):
@@ -151,6 +143,59 @@ class DrawWindow(QtWidgets.QMdiSubWindow):
     def setup_menus(self):
         pass
 
+
+class DocumentRenderer:
+    def __init__(self, document):
+        self.document = document
+        self.painter = None
+
+    def render(self):
+        image = QtGui.QImage(self.document.size, QtGui.QImage.Format_ARGB32)
+        self.painter = QtGui.QPainter(image)
+
+        image.fill(QtGui.QColor('transparent'))
+
+        for layer in reversed(self.document.layers):
+            if not layer.hidden:
+                self.set_blend_mode(layer)
+                self.painter.drawImage(QtCore.QPoint(0, 0), layer.image)
+        self.painter.end()
+
+        return image
+
+    def set_blend_mode(self, layer):
+        if not layer.blend_mode or layer.blend_mode == 'normal':
+            self.painter.setCompositionMode(QtGui.QPainter.CompositionMode_SourceOver)
+        else:
+            self.painter.setCompositionMode(self.composition_mode_for_name(layer.blend_mode))
+
+    def composition_mode_for_name(self, name):
+        if name == 'darken':
+            return QtGui.QPainter.CompositionMode_Darken
+        if name == 'lighten':
+            return QtGui.QPainter.CompositionMode_Lighten
+        if name == 'add':
+            return QtGui.QPainter.CompositionMode_Plus
+        if name == 'difference':
+            return QtGui.QPainter.CompositionMode_Difference
+        if name == 'multiply':
+            return QtGui.QPainter.CompositionMode_Multiply
+        if name == 'screen':
+            return QtGui.QPainter.CompositionMode_Screen
+        if name == 'invert':
+            return QtGui.QPainter.CompositionMode_Invert
+        if name == 'overlay':
+            return QtGui.QPainter.CompositionMode_Overlay
+        if name == 'hardlight':
+            return QtGui.QPainter.CompositionMode_HardLight
+        if name == 'softlight':
+            return QtGui.QPainter.CompositionMode_SoftLight
+        if name == 'dodge':
+            return QtGui.QPainter.CompositionMode_ColorDodge
+        if name == 'burn':
+            return QtGui.QPainter.CompositionMode_ColorBurn
+
+        raise Exception('Unsupported composition mode \'%s\'' % name)
 
 class CanvasLabel(QtWidgets.QLabel):
     redraw = QtCore.Signal((QtCore.QObject,))
