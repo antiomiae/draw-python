@@ -167,7 +167,7 @@ class DocumentRenderer:
         self.painter = None
 
     def render(self):
-        image = QtGui.QImage(self.document.size, QtGui.QImage.Format_ARGB32)
+        image = QtGui.QImage(self.document.size, QtGui.QImage.Format_ARGB32_Premultiplied)
         self.painter = QtGui.QPainter(image)
 
         image.fill(QtGui.QColor('transparent'))
