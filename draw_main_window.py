@@ -148,7 +148,7 @@ class DrawMainWindow(QtWidgets.QMainWindow):
         dock = QtWidgets.QDockWidget()
         self.addDockWidget(dock_area, dock)
 
-        dock.setSizePolicy(QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Fixed)
+        #dock.setSizePolicy(QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Fixed)
         dock.setFeatures(QtWidgets.QDockWidget.DockWidgetFloatable | QtWidgets.QDockWidget.DockWidgetMovable)
         dock.setAllowedAreas(dock_area)
 
