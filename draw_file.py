@@ -50,7 +50,7 @@ class DrawFile:
 
     def get_layer_image_stream(self, layer_num):
         if layer_num < 0 or layer_num >= self.layer_count:
-            raise 'layer out of bounds'
+            raise Exception('layer out of bounds')
 
         path_name = 'layer{}.png'.format(layer_num)
 

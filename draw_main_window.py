@@ -169,15 +169,18 @@ class DrawMainWindow(QtWidgets.QMainWindow):
         self.info_panel = InfoPanel()
         dock_2.setWidget(self.info_panel)
 
-        tool_dock = self.create_dock_widget('drawing tools', QtCore.Qt.LeftDockWidgetArea)
+        self.current_color_widget = CurrentColorsWidget()
+        self.current_color_widget.setMinimumSize(QtCore.QSize(16, 16))
+
+        current_color_dock = self.create_dock_widget('current colors', QtCore.Qt.LeftDockWidgetArea)
+        current_color_dock.setWidget(self.current_color_widget)
+
         self.drawing_tools_widget = DrawingToolsWidget()
+        tool_dock = self.create_dock_widget('drawing tools', QtCore.Qt.LeftDockWidgetArea)
         tool_dock.setWidget(self.drawing_tools_widget)
 
     def setup_toolbars(self):
         self.top_toolbar = self.addToolBar('toolbar')
-        current_color = CurrentColorsWidget()
-        current_color.setFixedSize(QtCore.QSize(32, 32))
-        self.top_toolbar.addWidget(current_color)
 
     def handle_open_file(self, checked):
         settings = QtCore.QSettings()

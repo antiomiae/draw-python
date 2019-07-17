@@ -1,4 +1,5 @@
 import sys
+from pprint import pprint
 from draw_file import DrawFile
 
 if __name__ == '__main__':
@@ -6,4 +7,4 @@ if __name__ == '__main__':
     print(fname)
     file = DrawFile.from_path(fname)
 
-    print(file._doc_data)
+    print(pprint(file._doc_data))

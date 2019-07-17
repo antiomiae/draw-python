@@ -24,6 +24,8 @@ class DrawingToolsWidget(QWidget):
         self._fill_button = self.create_tool_button(':/icons/draw_icons_bucket.png')
         self.layout().addWidget(self._fill_button, 1, 1)
 
+
+
     def create_tool_button(self, icon):
         button = QToolButton()
         button.setIcon(QIcon(icon))
