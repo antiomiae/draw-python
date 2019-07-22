@@ -10,3 +10,4 @@ cx-freeze = "*"
 qtmodern = {editable = true,version = "*"}
 qt-py = "*"
 setuptools = "*"
+pyinstaller = "*"

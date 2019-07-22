@@ -1,6 +1,6 @@
-from Qt.QtWidgets import *
-from Qt.QtGui import *
-from Qt.QtCore import *
+from qtpy.QtWidgets import *
+from qtpy.QtGui import *
+from qtpy.QtCore import *
 
 
 class LayerPanel(QWidget):

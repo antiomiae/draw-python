@@ -10,11 +10,9 @@ class CurrentColorsWidget(QWidget):
         self.secondary_color = None
 
         self.setLayout(QVBoxLayout())
-        self.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
+        #self.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
 
         self.layout().addWidget(CurrentColorsView(self), 1)
-        self.layout().setSizeConstraint(QLayout.SetMinimumSize)
-
 
     def sizeHint(self):
         return QSize(0, 0)
@@ -25,7 +23,7 @@ class CurrentColorsView(QWidget):
         self.setContentsMargins(4, 4, 4, 4)
         self.setSizePolicy(QSizePolicy.Maximum, QSizePolicy.Maximum)
 
-        self.setBackgroundRole()
+        #self.setBackgroundRole()
 
     def sizeHint(self):
         return QSize(128, 128)
