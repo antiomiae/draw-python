@@ -170,10 +170,11 @@ class DrawMainWindow(QtWidgets.QMainWindow):
         dock_2.setWidget(self.info_panel)
 
         self.current_color_widget = CurrentColorsWidget()
-        self.current_color_widget.setMinimumSize(QtCore.QSize(16, 16))
+        self.current_color_widget.setMaximumSize(QtCore.QSize(128, 128))
 
         current_color_dock = self.create_dock_widget('current colors', QtCore.Qt.LeftDockWidgetArea)
         current_color_dock.setWidget(self.current_color_widget)
+        current_color_dock.setMinimumSize(QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Fixed)
 
         self.drawing_tools_widget = DrawingToolsWidget()
         tool_dock = self.create_dock_widget('drawing tools', QtCore.Qt.LeftDockWidgetArea)
