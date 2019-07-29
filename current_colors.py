@@ -12,16 +12,25 @@ class CurrentColorsWidget(QWidget):
         self.setLayout(QVBoxLayout())
         #self.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
 
-        self.layout().addWidget(CurrentColorsView(self), 1)
+        #self.layout().setSizeConstraint(QLayout.SetMinimumSize)
+        self.layout().addWidget(CurrentColorsView(self), 0)
 
-    def sizeHint(self):
-        return QSize(0, 0)
+        button_layout = QHBoxLayout()
+        self.layout().addLayout(button_layout)
+
+        swap_button = QToolButton()
+        swap_button.setText('swap')
+        button_layout.addWidget(swap_button)
+
+    #def sizeHint(self):
+     #   return QSize(0, 0)
+
 
 class CurrentColorsView(QWidget):
     def __init__(self, parent):
         super().__init__(parent)
         self.setContentsMargins(4, 4, 4, 4)
-        self.setSizePolicy(QSizePolicy.Maximum, QSizePolicy.Maximum)
+        self.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
 
         #self.setBackgroundRole()
 
@@ -29,15 +38,11 @@ class CurrentColorsView(QWidget):
         return QSize(128, 128)
 
     def resizeEvent(self, event):
-        w = min(event.size().width(), 128)
-        h = min(event.size().height(), 128)
-
-        o = min(w, h)
+        w = event.size().width()
+        h = event.size().height()
+        o = min(w, h, 128)
         self.resize(o, o)
-
-        print('resizeEvent', event.size(), self.size())
         event.accept()
-        self.parent().updateGeometry()
 
     def paintEvent(self, event):
         painter = QPainter(self)

@@ -6,7 +6,6 @@ verify_ssl = true
 [packages]
 PySide2 = "*"
 wheel = "*"
-cx-freeze = "*"
 qtmodern = {editable = true,version = "*"}
 qt-py = "*"
 setuptools = "*"
