@@ -9,4 +9,4 @@ wheel = "*"
 qtmodern = {editable = true,version = "*"}
 qt-py = "*"
 setuptools = "*"
-pyinstaller = "*"
+pyinstaller = ">=3.6"
