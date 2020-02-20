@@ -71,10 +71,11 @@ class DrawMainWindow(QtWidgets.QMainWindow):
         file_paths = settings.value('editor/open_windows', [])
 
         for path in file_paths:
-            document = DrawDocument(path)
-            window = DrawWindow(document)
-            self.mdi_area.addSubWindow(window)
-            window.show()
+            if os.path.isfile(path):
+                document = DrawDocument(path)
+                window = DrawWindow(document)
+                self.mdi_area.addSubWindow(window)
+                window.show()
 
     def on_about_to_quit(self):
         settings = QtCore.QSettings()
