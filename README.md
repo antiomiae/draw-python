@@ -4,7 +4,6 @@ A desktop pixel art drawing app. Reads files produced by fellow app Pyxel Edit.
 
 Requires Python 3.6+ and pipenv.
 
-# pipenv install
-# pipenv shell
-# python src/main.py
-
+    pipenv install
+    pipenv shell
+    python src/main.py
