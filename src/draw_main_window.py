@@ -1,10 +1,11 @@
 import sys
 import os
 
-from PySide2 import QtCore
-from PySide2 import QtWidgets
-from PySide2 import QtGui
+from PySide6 import QtCore
+from PySide6 import QtWidgets
+from PySide6 import QtGui
 
+from icon import nearest_icon
 import resources
 
 from draw_document import DrawDocument
@@ -36,7 +37,7 @@ class DrawMainWindow(QtWidgets.QMainWindow):
     def __init__(self):
         super().__init__()
 
-        self.setWindowIcon(QtGui.QIcon(':/icons/emblem.png'))
+        self.setWindowIcon(nearest_icon(':/icons/emblem.png'))
 
         self._info_bar = None
 
@@ -89,38 +90,38 @@ class DrawMainWindow(QtWidgets.QMainWindow):
         settings.sync()
 
     def setup_actions(self):
-        open_file = QtWidgets.QAction('Open')
+        open_file = QtGui.QAction('Open')
         open_file.setShortcut(QtGui.QKeySequence.Open)
 
-        new_file = QtWidgets.QAction('New')
+        new_file = QtGui.QAction('New')
         new_file.setShortcut(QtGui.QKeySequence.New)
 
-        save_file = QtWidgets.QAction('Save')
+        save_file = QtGui.QAction('Save')
         save_file.setShortcut(QtGui.QKeySequence.Save)
 
         self._actions['open_file'] = open_file
         self._actions['new_file'] = new_file
         self._actions['save_file'] = save_file
 
-        show_all_windows = QtWidgets.QAction('Show All Windows')
+        show_all_windows = QtGui.QAction('Show All Windows')
         self._actions['show_all_windows'] = show_all_windows
 
-        hide_all_windows = QtWidgets.QAction('Hide All Windows')
+        hide_all_windows = QtGui.QAction('Hide All Windows')
         self._actions['hide_all_windows'] = hide_all_windows
 
-        view_zoom_in = QtWidgets.QAction('Zoom In')
+        view_zoom_in = QtGui.QAction('Zoom In')
         view_zoom_in.setShortcut(QtGui.QKeySequence.ZoomIn)
         self._actions['view_zoom_in'] = view_zoom_in
 
-        view_zoom_out = QtWidgets.QAction('Zoom Out')
+        view_zoom_out = QtGui.QAction('Zoom Out')
         view_zoom_out.setShortcut(QtGui.QKeySequence.ZoomOut)
         self._actions['view_zoom_out'] = view_zoom_out
 
-        view_toggle_grid = QtWidgets.QAction('Toggle Grid')
+        view_toggle_grid = QtGui.QAction('Toggle Grid')
         view_toggle_grid.setShortcut(QtGui.QKeySequence.fromString('Ctrl+G'))
         self._actions['view_toggle_grid'] = view_toggle_grid
 
-        reset_zoom = QtWidgets.QAction('Reset Zoom', self)
+        reset_zoom = QtGui.QAction('Reset Zoom', self)
         reset_zoom.setShortcut(QtGui.QKeySequence.fromString('Ctrl+0'))
         self._actions['reset_zoom'] = reset_zoom
 

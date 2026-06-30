@@ -1,10 +1,11 @@
 import sys
 
-from PySide2 import QtGui
-from PySide2 import QtWidgets
-from PySide2 import QtCore
+from PySide6 import QtGui
+from PySide6 import QtWidgets
+from PySide6 import QtCore
 
 from draw_document import DrawDocument
+from icon import nearest_icon
 
 
 class PalettePanel(QtWidgets.QWidget):
@@ -60,10 +61,10 @@ class PalettePanel(QtWidgets.QWidget):
         self.toolbar.setContentsMargins(0, 0, 0, 0)
         self.toolbar.setSizePolicy(QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Fixed)
 
-        enlarge_icon = QtGui.QIcon(':/icons/palette_icons_enlarge.png')
-        shrink_icon = QtGui.QIcon(':/icons/palette_icons_shrink.png')
-        delete_icon = QtGui.QIcon(':/icons/palette_icons_delete.png')
-        add_icon = QtGui.QIcon(':/icons/palette_icons_add.png')
+        enlarge_icon = nearest_icon(':/icons/palette_icons_enlarge.png')
+        shrink_icon = nearest_icon(":/icons/palette_icons_shrink.png")
+        delete_icon = nearest_icon(":/icons/palette_icons_delete.png")
+        add_icon = nearest_icon(":/icons/palette_icons_add.png")
 
         add_action = self.toolbar.addAction(add_icon, 'add', self.handle_add)
         shrink_action = self.toolbar.addAction(shrink_icon, 'shrink palette', self.handle_shrink)

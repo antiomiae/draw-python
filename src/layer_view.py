@@ -1,8 +1,8 @@
 # utf-8
-from PySide2 import QtCore
-from PySide2 import QtWidgets
-from PySide2 import QtGui
-from PySide2.QtGui import QPainter, QImage, QPixmap
+from PySide6 import QtCore
+from PySide6 import QtWidgets
+from PySide6 import QtGui
+from PySide6.QtGui import QPainter, QImage, QPixmap
 
 from inspect import getmembers
 from dataclasses import dataclass
@@ -114,17 +114,17 @@ class LayerView(QtWidgets.QMainWindow):
         self.grabGesture(QtCore.Qt.PinchGesture)
 
     def setup_actions(self):
-        zoom_in_action = QtWidgets.QAction('Zoom In', self)
+        zoom_in_action = QtGui.QAction('Zoom In', self)
         zoom_in_action.setShortcut(QtGui.QKeySequence.ZoomIn)
         zoom_in_action.triggered.connect(self.handle_zoom_in)
         self.centralWidget().addAction(zoom_in_action)
 
-        zoom_out_action = QtWidgets.QAction('Zoom Out', self)
+        zoom_out_action = QtGui.QAction('Zoom Out', self)
         zoom_out_action.setShortcut(QtGui.QKeySequence.ZoomOut)
         zoom_out_action.triggered.connect(self.handle_zoom_out)
         self.centralWidget().addAction(zoom_out_action)
 
-        toggle_grid_action = QtWidgets.QAction('Toggle Grid', self)
+        toggle_grid_action = QtGui.QAction('Toggle Grid', self)
         toggle_grid_action.setShortcut(QtGui.QKeySequence.fromString('Ctrl+G'))
         toggle_grid_action.triggered.connect(self.handle_toggle_grid)
         self.centralWidget().addAction(toggle_grid_action)

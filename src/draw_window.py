@@ -1,12 +1,13 @@
 import os
 import math
 
-from PySide2 import QtCore
-from PySide2 import QtWidgets
-from PySide2 import QtGui
-from PySide2.QtGui import QImage
+from PySide6 import QtCore
+from PySide6 import QtWidgets
+from PySide6 import QtGui
+from PySide6.QtGui import QImage
 
 from draw_document import DrawDocument
+from icon import nearest_icon
 
 
 class DrawWindow(QtWidgets.QMdiSubWindow):
@@ -14,8 +15,8 @@ class DrawWindow(QtWidgets.QMdiSubWindow):
     MIN_ZOOM_LEVEL = -3
 
     __style_sheet = """
-    DrawWindow { 
-        selection-background-color: #888; 
+    DrawWindow {
+        selection-background-color: #888;
         selection-color: black;
         color: #777;
         outline-color: red;
@@ -61,7 +62,7 @@ class DrawWindow(QtWidgets.QMdiSubWindow):
 
         self.render_document()
         self.update_title_bar_text()
-        self.setWindowIcon(QtGui.QIcon(':/icons/emblem'))
+        self.setWindowIcon(nearest_icon(':/icons/emblem'))
         self.resize_contents(self.scroll_area.sizeHint())
 
     @property

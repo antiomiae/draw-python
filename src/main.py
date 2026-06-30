@@ -1,13 +1,12 @@
 # This Python file uses the following encoding: utf-8
 import sys
-from PySide2.QtWidgets import QApplication, QMainWindow, QStyleFactory
-from PySide2.QtCore import Qt
-from PySide2 import QtCore
+from PySide6 import QtGui
+from PySide6.QtWidgets import QApplication
+from PySide6.QtCore import Qt
 
 from draw_main_window import DrawMainWindow
 
-import qtmodern.styles
-import qtmodern.windows
+from qtmodernredux6 import QtModernRedux
 
 if __name__ == "__main__":
     QApplication.setAttribute(Qt.AA_EnableHighDpiScaling)
@@ -15,8 +14,7 @@ if __name__ == "__main__":
     QApplication.setAttribute(Qt.AA_SynthesizeMouseForUnhandledTouchEvents, False)
     QApplication.setAttribute(Qt.AA_SynthesizeTouchForUnhandledMouseEvents, False)
 
-    app = QApplication([])
-
+    app = QtModernRedux.QApplication([])
 
     # style_name = 'fusion'
     # if app.platformName() == 'windows':
@@ -26,16 +24,14 @@ if __name__ == "__main__":
 
     # app.setStyle(QStyleFactory.create(style_name))
 
-    QApplication.setOrganizationName('Kevin Ward')
-    QApplication.setApplicationName('draw')
-
-    qtmodern.styles.dark(app)
+    QApplication.setOrganizationName("Kevin Ward")
+    QApplication.setApplicationName("draw")
 
     main_window = DrawMainWindow()
-    #main_window.show()
 
-    modern_window = qtmodern.windows.ModernWindow(main_window)
-    #
-    modern_window.show()
+    main_window.show()
+    # modern_window = QtModernRedux.wrap(main_window)
+    # #
+    # modern_window.show()
 
     sys.exit(app.exec_())

@@ -1,6 +1,8 @@
-from PySide2.QtWidgets import *
-from PySide2.QtGui import *
-from PySide2.QtCore import *
+from PySide6.QtWidgets import *
+from PySide6.QtGui import *
+from PySide6.QtCore import *
+
+from icon import nearest_icon
 
 
 class DrawingToolsWidget(QWidget):
@@ -28,7 +30,7 @@ class DrawingToolsWidget(QWidget):
 
     def create_tool_button(self, icon):
         button = QToolButton()
-        button.setIcon(QIcon(icon))
+        button.setIcon(nearest_icon(icon))
         button.setCheckable(True)
         button.setAutoExclusive(True)
         button.setIconSize(QSize(16, 16))

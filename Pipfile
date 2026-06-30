@@ -4,9 +4,11 @@ url = "https://pypi.org/simple"
 verify_ssl = true
 
 [packages]
-PySide2 = "*"
+PySide6 = "*"
 wheel = "*"
-qtmodern = {editable = true,version = "*"}
-qt-py = "*"
 setuptools = "*"
 pyinstaller = ">=3.6"
+qtpy = "*"
+qtmodernredux6 = "*"
+
+[dev-packages]
