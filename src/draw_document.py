@@ -1,21 +1,23 @@
 from PySide6 import QtCore
 from PySide6 import QtGui
 from draw_file import DrawFile
-#from dataclasses import dataclass
 
-#@dataclass
+# from dataclasses import dataclass
+
+
+# @dataclass
 class DrawLayer(QtCore.QObject):
     updated = QtCore.Signal((QtCore.QObject,))
 
     def __init__(self, size=QtCore.QSize(128, 128)):
         super().__init__()
-        self.name = ''
+        self.name = ""
         self.size = size
         self.image = QtGui.QImage(self.size, QtGui.QImage.Format_ARGB32)
         self.image.size = self.size
         self.image.fill(QtCore.Qt.transparent)
         self.hidden = False
-        self.blend_mode = 'normal'
+        self.blend_mode = "normal"
         self.alpha = 255
 
     def propagate_changes(self):
@@ -57,10 +59,10 @@ class DrawDocument(QtCore.QObject):
                 buffer = QtCore.QByteArray(stream.read())
                 layer = DrawLayer(canvas_size)
                 layer.image.loadFromData(buffer)
-                layer.hidden = info['hidden']
-                layer.blend_mode = info['blendMode']
-                layer.alpha = info['alpha']
-                layer.name = info['name']
+                layer.hidden = info["hidden"]
+                layer.blend_mode = info["blendMode"]
+                layer.alpha = info["alpha"]
+                layer.name = info["name"]
                 self.layers.append(layer)
                 layer.updated.connect(self.layer_updated)
 
@@ -70,6 +72,13 @@ class DrawDocument(QtCore.QObject):
             self.layers.pop(current_index)
             self.layers.insert(index, layer)
             self.layer_order_changed.emit(self)
+
+    def add_blank_layer(self):
+        print(self.__class__.__name__ + ".add_blank_layer")
+        new_layer = DrawLayer(self.size)
+        self.layers.append(new_layer)
+        new_layer.updated.connect(self.layer_updated)
+        self.document_changed.emit(self)
 
     def layer_updated(self, layer):
         self.document_changed.emit(self)

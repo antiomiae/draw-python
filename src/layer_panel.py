@@ -50,8 +50,11 @@ class LayerPanel(QWidget):
     def document_changed(self, document):
         print("LayerPanel document_changed")
 
+        if self._document:
+            self._document.document_changed.disconnect(self.document_changed)
         if document:
             self._document = document
+            self._document.document_changed.connect(self.document_changed)
             self._layer_list.set_layers(self._document.layers)
         else:
             self._document = None
@@ -89,7 +92,8 @@ class LayerPanel(QWidget):
         )
 
     def handle_add(self):
-        pass
+        print(self.__class__.__name__ + '.handle_add')
+        self._document.add_blank_layer()
 
     def handle_delete(self):
         pass
